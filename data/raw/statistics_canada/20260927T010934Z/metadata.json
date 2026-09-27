@@ -1,0 +1,14 @@
+{
+  "source": "statistics_canada",
+  "api_base": "https://www150.statcan.gc.ca/t1/wds/rest",
+  "retrieved_utc": "2026-09-27T01:09:35.073628+00:00",
+  "snapshot": "20260927T010934Z",
+  "tables_requested": 1,
+  "series_succeeded": 4,
+  "tables_failed": 0,
+  "failures": [],
+  "schema_warnings": [],
+  "observation_count": 584,
+  "requires_api_key": false,
+  "licence": "Statistics Canada Open Licence"
+}

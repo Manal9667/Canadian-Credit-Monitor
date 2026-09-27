@@ -1,0 +1,13 @@
+{
+  "source": "bank_of_canada",
+  "api_base": "https://www.bankofcanada.ca/valet",
+  "retrieved_utc": "2026-09-27T01:08:26.457219+00:00",
+  "snapshot": "20260927T010821Z",
+  "series_requested": 16,
+  "series_succeeded": 16,
+  "series_failed": 0,
+  "failures": [],
+  "observation_count": 11434,
+  "requires_api_key": false,
+  "terms_url": "https://www.bankofcanada.ca/terms/"
+}

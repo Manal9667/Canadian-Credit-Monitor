@@ -1,0 +1,5 @@
+source,series_id,series_name,category,subcategory,unit,frequency,measure_type,statcan_table,statcan_vector,observation_count,min_date,max_date
+statistics_canada,STATCAN_v1038036698,Household credit market debt to disposable income,Household Credit,Debt-to-income ratio,ratio,quarterly,ratio,38100238,v1038036698,146,1990-01,2026-04
+statistics_canada,STATCAN_v1038036700,Household credit market debt (level),Household Credit,Total household credit market debt,millions_cad,quarterly,balance,38100238,v1038036700,146,1990-01,2026-04
+statistics_canada,STATCAN_v1038036701,Household consumer credit liabilities (level),Household Credit,Consumer credit,millions_cad,quarterly,balance,38100238,v1038036701,146,1990-01,2026-04
+statistics_canada,STATCAN_v1038036703,Household mortgage liabilities (level),Household Credit,Mortgages,millions_cad,quarterly,balance,38100238,v1038036703,146,1990-01,2026-04

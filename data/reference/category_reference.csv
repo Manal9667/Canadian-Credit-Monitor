@@ -1,0 +1,21 @@
+category,subcategory,measure_type,unit
+Business Credit,Business loans total,balance,millions_cad
+Effective Lending Rate,Business loan rate,rate,percent
+Effective Lending Rate,Consumer credit rate,rate,percent
+Effective Lending Rate,Credit card rate,rate,percent
+Household Credit,Auto loans,balance,millions_cad
+Household Credit,Consumer credit,balance,millions_cad
+Household Credit,Consumer credit total,balance,millions_cad
+Household Credit,Credit cards,balance,millions_cad
+Household Credit,Debt-to-income ratio,ratio,ratio
+Household Credit,Mortgages,balance,millions_cad
+Household Credit,Mortgages insured,balance,millions_cad
+Household Credit,Mortgages uninsured,balance,millions_cad
+Household Credit,PLOC secured,balance,millions_cad
+Household Credit,PLOC unsecured,balance,millions_cad
+Household Credit,Total household credit market debt,balance,millions_cad
+Policy Rate,Overnight target,rate,percent
+Posted Rate,Mortgage 1-year,rate,percent
+Posted Rate,Mortgage 3-year,rate,percent
+Posted Rate,Mortgage 5-year,rate,percent
+Posted Rate,Prime,rate,percent

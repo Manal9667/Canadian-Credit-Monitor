@@ -1,0 +1,221 @@
+{
+  "_comment": "Single source of truth for every data series ingested by the platform. Every Bank of Canada series_id below was verified against the live Valet API. StatCan tables are pulled as full official CSV extracts and filtered by descriptor text at runtime, so no vector IDs are hard-coded/guessed.",
+  "bank_of_canada": {
+    "api_base": "https://www.bankofcanada.ca/valet",
+    "series": [
+      {
+        "series_id": "V39079",
+        "name": "Policy interest rate (target for the overnight rate)",
+        "category": "Policy Rate",
+        "subcategory": "Overnight target",
+        "unit": "percent",
+        "frequency": "daily",
+        "measure_type": "rate",
+        "notes": "Bank of Canada policy rate. Business-daily series."
+      },
+      {
+        "series_id": "V80691311",
+        "name": "Chartered bank prime lending rate",
+        "category": "Posted Rate",
+        "subcategory": "Prime",
+        "unit": "percent",
+        "frequency": "weekly",
+        "measure_type": "rate",
+        "notes": "Typical prime rate posted by the six major chartered banks."
+      },
+      {
+        "series_id": "V80691333",
+        "name": "Conventional mortgage rate, 1-year",
+        "category": "Posted Rate",
+        "subcategory": "Mortgage 1-year",
+        "unit": "percent",
+        "frequency": "weekly",
+        "measure_type": "rate",
+        "notes": "Posted 1-year conventional mortgage rate."
+      },
+      {
+        "series_id": "V80691334",
+        "name": "Conventional mortgage rate, 3-year",
+        "category": "Posted Rate",
+        "subcategory": "Mortgage 3-year",
+        "unit": "percent",
+        "frequency": "weekly",
+        "measure_type": "rate",
+        "notes": "Posted 3-year conventional mortgage rate."
+      },
+      {
+        "series_id": "V80691335",
+        "name": "Conventional mortgage rate, 5-year",
+        "category": "Posted Rate",
+        "subcategory": "Mortgage 5-year",
+        "unit": "percent",
+        "frequency": "weekly",
+        "measure_type": "rate",
+        "notes": "Posted 5-year conventional mortgage rate."
+      },
+      {
+        "series_id": "V122667758",
+        "name": "Consumer credit, total (outstanding balances)",
+        "category": "Household Credit",
+        "subcategory": "Consumer credit total",
+        "unit": "millions_cad",
+        "frequency": "monthly",
+        "measure_type": "balance",
+        "notes": "Outstanding non-mortgage consumer credit at chartered banks (A4)."
+      },
+      {
+        "series_id": "V122667761",
+        "name": "Credit card loans (outstanding balances)",
+        "category": "Household Credit",
+        "subcategory": "Credit cards",
+        "unit": "millions_cad",
+        "frequency": "monthly",
+        "measure_type": "balance",
+        "notes": "Outstanding credit card balances at chartered banks (A4)."
+      },
+      {
+        "series_id": "V122667762",
+        "name": "Personal lines of credit, secured (outstanding balances)",
+        "category": "Household Credit",
+        "subcategory": "PLOC secured",
+        "unit": "millions_cad",
+        "frequency": "monthly",
+        "measure_type": "balance",
+        "notes": "Outstanding secured personal lines of credit (A4)."
+      },
+      {
+        "series_id": "V122667763",
+        "name": "Personal lines of credit, unsecured (outstanding balances)",
+        "category": "Household Credit",
+        "subcategory": "PLOC unsecured",
+        "unit": "millions_cad",
+        "frequency": "monthly",
+        "measure_type": "balance",
+        "notes": "Outstanding unsecured personal lines of credit (A4)."
+      },
+      {
+        "series_id": "V122667760",
+        "name": "Auto loans (outstanding balances)",
+        "category": "Household Credit",
+        "subcategory": "Auto loans",
+        "unit": "millions_cad",
+        "frequency": "monthly",
+        "measure_type": "balance",
+        "notes": "Outstanding auto loans within personal loan plans (A4)."
+      },
+      {
+        "series_id": "V122667736",
+        "name": "Residential mortgages, insured, total (outstanding balances)",
+        "category": "Household Credit",
+        "subcategory": "Mortgages insured",
+        "unit": "millions_cad",
+        "frequency": "monthly",
+        "measure_type": "balance",
+        "notes": "Outstanding insured residential mortgages at chartered banks (A4)."
+      },
+      {
+        "series_id": "V122667742",
+        "name": "Residential mortgages, uninsured, total (outstanding balances)",
+        "category": "Household Credit",
+        "subcategory": "Mortgages uninsured",
+        "unit": "millions_cad",
+        "frequency": "monthly",
+        "measure_type": "balance",
+        "notes": "Outstanding uninsured residential mortgages at chartered banks (A4)."
+      },
+      {
+        "series_id": "V122667770",
+        "name": "Business loans, total (outstanding balances)",
+        "category": "Business Credit",
+        "subcategory": "Business loans total",
+        "unit": "millions_cad",
+        "frequency": "monthly",
+        "measure_type": "balance",
+        "notes": "Outstanding credit extended to the corporate sector (A4)."
+      },
+      {
+        "series_id": "V122667809",
+        "name": "Consumer credit, total (effective lending rate)",
+        "category": "Effective Lending Rate",
+        "subcategory": "Consumer credit rate",
+        "unit": "percent",
+        "frequency": "monthly",
+        "measure_type": "rate",
+        "notes": "Effective interest rate charged on outstanding consumer credit (A4)."
+      },
+      {
+        "series_id": "V122667812",
+        "name": "Credit card loans (effective lending rate)",
+        "category": "Effective Lending Rate",
+        "subcategory": "Credit card rate",
+        "unit": "percent",
+        "frequency": "monthly",
+        "measure_type": "rate",
+        "notes": "Effective interest rate charged on outstanding credit card balances (A4)."
+      },
+      {
+        "series_id": "V122667821",
+        "name": "Business loans, total (effective lending rate)",
+        "category": "Effective Lending Rate",
+        "subcategory": "Business loan rate",
+        "unit": "percent",
+        "frequency": "monthly",
+        "measure_type": "rate",
+        "notes": "Effective interest rate charged on outstanding business loans (A4)."
+      }
+    ]
+  },
+  "statistics_canada": {
+    "api_base": "https://www150.statcan.gc.ca/t1/wds/rest",
+    "tables": [
+      {
+        "product_id": "38100238",
+        "name": "Household sector credit market summary",
+        "category": "Household Credit",
+        "frequency": "quarterly",
+        "row_filters": [
+          {
+            "match_column": "Categories",
+            "match_value": "Credit market debt to disposable income",
+            "series_name": "Household credit market debt to disposable income",
+            "subcategory": "Debt-to-income ratio",
+            "unit": "ratio",
+            "measure_type": "ratio"
+          },
+          {
+            "match_column": "Categories",
+            "match_value": "Credit market debt - national balance sheet",
+            "series_name": "Household credit market debt (level)",
+            "subcategory": "Total household credit market debt",
+            "unit": "millions_cad",
+            "measure_type": "balance"
+          },
+          {
+            "match_column": "Categories",
+            "match_value": "Consumer credit - national balance sheet",
+            "series_name": "Household consumer credit liabilities (level)",
+            "subcategory": "Consumer credit",
+            "unit": "millions_cad",
+            "measure_type": "balance"
+          },
+          {
+            "match_column": "Categories",
+            "match_value": "Mortgages - national balance sheet",
+            "series_name": "Household mortgage liabilities (level)",
+            "subcategory": "Mortgages",
+            "unit": "millions_cad",
+            "measure_type": "balance"
+          }
+        ],
+        "notes": "The 'Categories' descriptor column is resolved case-insensitively at runtime; if StatCan renames a member the ingester logs a schema-change warning and records the affected filter rather than silently dropping data. StatCan national balance sheet levels use UOM 'Dollars' with a millions scalar factor."
+      }
+    ]
+  },
+  "ingestion_settings": {
+    "request_timeout_seconds": 30,
+    "max_retries": 3,
+    "retry_backoff_seconds": 2,
+    "start_date": "2000-01-01",
+    "user_agent": "Canadian-Banking-Credit-Intelligence-Platform/1.0 (public-data research project)"
+  }
+}
