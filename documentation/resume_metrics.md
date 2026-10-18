@@ -10,7 +10,7 @@ Use only claims supported by the current implementation and rerun outputs. Datas
 
 ## Evidence and Limits
 
-- Last local validation: 20 PASS, 0 WARN, 0 FAIL. All 20 series are inside documented frequency-aware freshness windows. The prior fixed-age rule's 11 monthly flags were false positives. A Statistics Canada HTTP 403 on 2026-10-12 was not reproduced on 2026-10-13; its root cause remains unknown.
+- Validation as of 2026-10-18 on the checked-in snapshots (retrieved 2026-10-13): 19 PASS, 1 WARN, 0 FAIL. The warning is 5 Bank of Canada series past their frequency-aware freshness windows because the snapshots have not been refreshed; results reflect observations through 2026-10-12. The prior fixed-age rule's 11 monthly flags were false positives. A Statistics Canada HTTP 403 on 2026-10-12 was not reproduced on 2026-10-13; its root cause remains unknown.
 - The SQL file defines 9 analytical views, all queried locally. Selected behavior is covered by 18 tests; broad coverage is not measured.
 - The loader has transactional PostgreSQL logic, but no PostgreSQL server was available for integration verification.
 - Power BI assets are specifications and Power Query scripts only. There is no `.pbix`, deployed dashboard, or implemented DAX measure library. The static dashboard is locally prepared for later deployment but has not been published.

@@ -5,10 +5,10 @@ This document maps implemented repository evidence to common banking technology 
 | Capability | Evidence in this repository | Boundary |
 | --- | --- | --- |
 | API and file ingestion | Bank of Canada Valet and Statistics Canada WDS modules | Live network ingestion was not run during the latest verification. |
-| Data quality | Schema, null, duplicate, date, frequency, freshness, and value checks; strict transformation guards | Current checked-in data has 1 warning for 12 stale Bank of Canada series. |
+| Data quality | Schema, null, duplicate, date, frequency, freshness, and value checks; strict transformation guards | Current checked-in data has 1 warning for 5 overdue Bank of Canada series as of 2026-10-18 (snapshots retrieved 2026-10-13). |
 | Python analytics | Period changes, exact-calendar YoY for eligible frequencies, rolling means, history statistics, anomaly flags | Statistical descriptions are not causal or borrower-risk conclusions. |
 | SQL and modeling | Four-table star schema, indexes, and 9 analytical views | Views were executed through DuckDB; PostgreSQL integration remains unverified. |
-| Reporting | On-demand Markdown and CSV output with source snapshot timestamps | No scheduler, mail delivery, deployed report service, or frontend. |
+| Reporting | On-demand Markdown and CSV output with source snapshot timestamps | No scheduler, mail delivery, or deployed report service; a static dashboard is built locally from frontend/ but is not published. |
 | BI | Power Query scripts and written semantic-model/DAX/dashboard specifications | No Power BI `.pbix` or implemented dashboard is present. |
 
 ## Public Data and Compliance
