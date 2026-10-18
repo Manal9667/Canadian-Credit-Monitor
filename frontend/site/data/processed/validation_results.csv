@@ -1,0 +1,21 @@
+rule,status,records_affected,severity,recommended_action,details,source
+Schema: required columns present,PASS,0,INFO,None,columns_checked=4,bank_of_canada
+Missing observations (null values),PASS,0,INFO,None,pct_missing=0.0,bank_of_canada
+Duplicate series/date combinations,PASS,0,INFO,None,,bank_of_canada
+Invalid / unparseable dates,PASS,0,INFO,None,,bank_of_canada
+Observation dates in the future,PASS,0,INFO,None,,bank_of_canada
+Negative values in balance/rate series,PASS,0,INFO,None,affected_series=0,bank_of_canada
+Unit consistency per series,PASS,0,INFO,None,,bank_of_canada
+Unexpected frequency gaps,PASS,0,INFO,None,,bank_of_canada
+Extreme values (|z| > 6.0),PASS,0,INFO,None,,bank_of_canada
+Stale data (latest observation older than expected),WARN,5,MEDIUM,Confirm source has not paused publication.,"stale_series={'V39079': {'age_days': 6, 'expected_next_publication_date': '2026-10-13', 'overdue_after_date': '2026-10-15'}, 'V80691311': {'age_days': 11, 'expected_next_publication_date': '2026-10-14', 'overdue_after_date': '2026-10-16'}, 'V80691333': {'age_days': 11, 'expected_next_publication_date': '2026-10-14', 'overdue_after_date': '2026-10-16'}, 'V80691334': {'age_days': 11, 'expected_next_publication_date': '2026-10-14', 'overdue_after_date': '2026-10-16'}, 'V80691335': {'age_days': 11, 'expected_next_publication_date': '2026-10-14', 'overdue_after_date': '2026-10-16'}}",bank_of_canada
+Schema: required columns present,PASS,0,INFO,None,columns_checked=4,statistics_canada
+Missing observations (null values),PASS,0,INFO,None,pct_missing=0.0,statistics_canada
+Duplicate series/date combinations,PASS,0,INFO,None,,statistics_canada
+Invalid / unparseable dates,PASS,0,INFO,None,,statistics_canada
+Observation dates in the future,PASS,0,INFO,None,,statistics_canada
+Negative values in balance/rate series,PASS,0,INFO,None,affected_series=0,statistics_canada
+Unit consistency per series,PASS,0,INFO,None,,statistics_canada
+Unexpected frequency gaps,PASS,0,INFO,None,,statistics_canada
+Extreme values (|z| > 6.0),PASS,0,INFO,None,,statistics_canada
+Stale data (latest observation older than expected),PASS,0,INFO,None,,statistics_canada
