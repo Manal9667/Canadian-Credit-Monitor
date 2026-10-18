@@ -138,3 +138,5 @@ frontend/site/
 # - Any secrets or sensitive data
 # - Full data files (partial OK for testing)
 # - IDE-specific cache directories
+
+.ruff_cache/
