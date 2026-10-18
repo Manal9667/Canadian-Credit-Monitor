@@ -12,7 +12,7 @@ LINK = re.compile(r"(?<!!)\[[^\]]+\]\(([^)]+)\)")
 
 class ReadmeLinkTests(unittest.TestCase):
     def test_relative_links_in_readmes_resolve(self) -> None:
-        for readme in (ROOT / "README.md", ROOT / "README_COMPLETE.md"):
+        for readme in (ROOT / "README.md", ROOT / "documentation" / "technical_reference.md"):
             with self.subTest(readme=readme.name):
                 text = readme.read_text(encoding="utf-8")
                 for raw_target in LINK.findall(text):
