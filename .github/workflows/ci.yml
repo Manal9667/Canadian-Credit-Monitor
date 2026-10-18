@@ -32,6 +32,11 @@ jobs:
         run: python -m ruff check python tests
       - name: Unit tests
         run: python -m unittest discover -v
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: JavaScript engine tests
+        run: node tests/test_interest_cost_engine.js
       - name: Validate and rebuild from checked-in snapshots (offline)
         run: |
           python -m python.validation.engine
