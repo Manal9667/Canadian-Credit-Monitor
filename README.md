@@ -156,6 +156,6 @@ The partial case separates exposure, pass-through, and the share repriced by the
 - `documentation/`: source definitions, validation results, pipeline limits, and methodology.
 - `frontend/index.html`: dashboard source; `frontend/site/` is generated at build time.
 
-See [the research memo](reports/research_memo.md), [methodology](documentation/methodology.md), [data sources](documentation/data_sources.md), [pipeline hardening notes](documentation/pipeline_hardening.md), and the [extended technical reference](README_COMPLETE.md).
+See [the research memo](reports/research_memo.md), [methodology](documentation/methodology.md), [data sources](documentation/data_sources.md), [pipeline hardening notes](documentation/pipeline_hardening.md), and the [extended technical reference](documentation/technical_reference.md).
 
 The project has no borrower-level data, default or delinquency outcome, forecasts, causal estimates, scheduled refresh, or deployed public dashboard. PostgreSQL loading is optional and its integration path was not exercised in this audit.

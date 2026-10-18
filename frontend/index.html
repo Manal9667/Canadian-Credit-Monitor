@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#f4f5f1">
-  <title>Northline | Canadian Credit Monitor</title>
+  <title>Canadian Credit Monitor</title>
   <style>
     :root {
       color-scheme: light;
@@ -77,7 +77,7 @@
     .chart-legend { color: var(--muted); font: 10px var(--mono); display: flex; gap: 7px; align-items: center; margin-top: 6px; }
     .legend-line { width: 15px; height: 2px; background: var(--green); }
     canvas { width: 100%; height: 250px; display: block; margin-top: 10px; }
-    .lower-grid { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(300px, .9fr); gap: 22px; margin-top: 27px; }
+    .lower-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 22px; margin-top: 27px; }
     .plain-panel { min-width: 0; }
     .panel-title { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
     .panel-title span { color: var(--muted); font: 10px var(--mono); }
@@ -118,6 +118,7 @@
     .question-copy { max-width: 740px; color: #4f5d54; line-height: 1.65; }
     .question-copy strong { color: var(--ink); }
     .coverage-card, .method-card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; }
+    .coverage-card { display: none; }
     .coverage-card h2, .method-card h2 { font-size: 12px; margin-bottom: 8px; }
     .coverage-row { display: flex; justify-content: space-between; gap: 10px; padding: 5px 0; border-bottom: 1px solid #edf0eb; font-size: 11px; }
     .coverage-row:last-child { border-bottom: 0; }
@@ -139,6 +140,30 @@
     .method-note { color: var(--muted); font-size: 11px; line-height: 1.6; margin: 12px 0; }
     .method-note a { color: var(--green); }
     .coverage-line { color: var(--muted); font-size: 10px; margin: 8px 0 0; }
+    .takeaway { margin: 12px 0 0; max-width: 700px; color: #33413a; font-size: 15px; line-height: 1.55; border-left: 3px solid var(--green); padding-left: 12px; }
+    .takeaway[hidden] { display: none; }
+    .research-grid.one-col { grid-template-columns: minmax(0, 1fr); }
+    .analyst-details { margin-top: 18px; }
+    .analyst-details > summary { cursor: pointer; font-weight: 700; color: var(--green); padding: 12px 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
+    .analyst-details[open] > summary { margin-bottom: 18px; }
+    .analyst-details > summary:focus-visible { outline: 2px solid #80aa93; outline-offset: 2px; }
+    .scenario-bars { margin: 12px 0 14px; display: grid; gap: 8px; }
+    .bar-row { display: grid; grid-template-columns: 54px minmax(0, 1fr) auto; gap: 10px; align-items: center; font-size: 11px; }
+    .bar-label { font: 10px var(--mono); color: var(--muted); }
+    .bar-tracks { display: grid; gap: 3px; }
+    .bar { height: 8px; border-radius: 4px; display: block; }
+    .bar.partial { background: var(--green); }
+    .bar.full { background: #c9d4cc; }
+    .bar-value { font: 10px var(--mono); color: var(--muted); white-space: nowrap; }
+    .bar-key { color: var(--muted); font-size: 10px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .bar-key .bar { width: 14px; display: inline-block; }
+    @media (max-width: 700px) { .bar-row { grid-template-columns: 48px minmax(0, 1fr); } .bar-value { grid-column: 1 / -1; } }
+    .takeaway div + div { margin-top: 6px; }
+    .stale-details { margin-top: 8px; }
+    .stale-details > summary { cursor: pointer; font-weight: 600; }
+    .stale-details .table-wrap { margin-top: 8px; }
+    .stale-details table, .stale-details .method-note { color: var(--ink); }
+    .question-copy > summary { cursor: pointer; color: var(--green); }
     .hidden-view { display: none !important; }
     .fade-in { animation: reveal .42s ease both; }
     @keyframes reveal { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
@@ -182,8 +207,8 @@
   <div class="shell">
     <aside class="rail">
       <div class="brand">
-        <div class="brand-mark">N</div>
-        <div><div class="brand-name">NORTHLINE</div><span class="brand-sub">CANADIAN CREDIT MONITOR</span></div>
+        <div class="brand-mark">CC</div>
+        <div><div class="brand-name">Credit Monitor</div><span class="brand-sub">CANADA · PUBLIC DATA</span></div>
       </div>
       <p class="nav-label">Workspace</p>
       <nav class="nav" aria-label="Dashboard sections">
@@ -198,10 +223,12 @@
     <main>
       <div id="load-error" class="error" hidden></div>
       <header class="topline fade-in">
-        <div><div class="eyebrow">Economic indicators / Canada</div><h1 id="page-title">Market overview</h1><p class="subhead" id="page-subtitle">A clear read on credit conditions and rates.</p></div>
+        <div><div class="eyebrow">Economic indicators / Canada</div><h1 id="page-title">Market overview</h1><p class="subhead" id="page-subtitle">A clear read on credit conditions and rates.</p><p class="takeaway" id="takeaway" hidden></p></div>
         <div class="asof">LATEST OBSERVATION<strong id="latest-date">Loading data…</strong><span id="refresh-date"></span></div>
       </header>
-      <div id="freshness-notice" class="notice" hidden><span class="notice-mark">!</span><div><strong>Source data may be stale.</strong> <span id="freshness-copy"></span></div></div>
+      <div id="freshness-notice" class="notice" hidden>
+      </div>
+
       <section id="kpis-section" class="kpis" aria-label="Key indicators">
         <article class="kpi"><div class="kpi-label">Policy rate <span>01</span></div><div class="kpi-value" id="kpi-policy">—</div><div class="kpi-detail" id="kpi-policy-detail">Bank of Canada · daily</div></article>
         <article class="kpi"><div class="kpi-label">Household debt <span>02</span></div><div class="kpi-value" id="kpi-debt">—</div><div class="kpi-detail" id="kpi-debt-detail">Statistics Canada · quarterly</div></article>
@@ -264,7 +291,7 @@
               <div class="scenario-result"><div class="scenario-result-label">Full mechanical · cumulative</div><div id="scenario-mechanical-cumulative" class="scenario-result-value">—</div><div class="scenario-result-detail">Full mechanical case carried for the entire horizon</div></div>
             </div>
             <p id="scenario-rate-change" class="scenario-intro"></p>
-            <h2 class="scenario-table">Shock comparison under the current assumptions</h2>
+            <h2 class="scenario-table">Shock comparison under the current assumptions</h2><div id="scenario-bars" class="scenario-bars"></div>
             <div class="table-wrap"><table><thead><tr><th>POLICY SHOCK</th><th>BORROWING-RATE CHANGE</th><th>ANNUALIZED · PARTIAL</th><th>CUMULATIVE · PARTIAL</th><th>ANNUALIZED · FULL</th></tr></thead><tbody id="scenario-comparison-body"></tbody></table></div>
             <p class="scenario-source"><strong>Observed source baseline</strong><br><span id="scenario-source-copy">Waiting for processed Bank of Canada observations.</span></p>
             <p class="scenario-disclaimer"><strong>Formula.</strong> Rate change = policy shock × pass-through ÷ 10,000. Affected balance = eligible balance × exposure share × repriced share. Annualized run rate = affected balance × borrowing-rate change. Uniform timing accumulates at half the horizon's full run rate; start timing applies the selected repriced share from month 0. The mechanical comparator assumes full balance, one-for-one pass-through, and immediate repricing.</p>
@@ -279,7 +306,7 @@
 <script>
 (() => {
   const base = 'data/processed/';
-  const state = { summary: [], timeseries: [], alerts: [], validation: [], freshness: [], health: [], regimes: [], sensitivity: [], lags: [], regression: [], metadata: {}, years: 5, view: 'overview', metric: 'yoy_pct_change', scenarioBalanceEdited: false };
+  const state = { summary: [], timeseries: [], alerts: [], validation: [], freshness: [], health: [], regimes: [], sensitivity: [], lags: [], regression: [], metadata: {}, years: 5, view: 'overview', metric: 'yoy_pct_change', scenarioBalanceEdited: false, take: { overview: '', regimes: '', credit: 'Pick a series to see how household and business borrowing has moved over time.', rates: 'Pick a series to see how the policy rate and lending rates have moved over time.', monitoring: 'Flags mark unusually large moves or extreme levels for a person to review. They are not warnings of risk.', scenario: 'Adjust the assumptions to see roughly how much extra interest a rate rise could add each year. This is an illustration, not a forecast.' } };
   const $ = (id) => document.getElementById(id);
   const csv = (text) => {
     const rows = []; let row = []; let cell = ''; let quoted = false;
@@ -317,6 +344,21 @@
   };
   const safe = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const getSummary = id => state.summary.find(x => x.series_id === id);
+  const applyTakeaway = () => { const el = $('takeaway'); const t = state.take[state.view] || ''; if (Array.isArray(t)) el.innerHTML = t.map(([k, v]) => `<div><strong>${safe(k)}:</strong> ${safe(v)}</div>`).join(''); else el.textContent = t; el.hidden = !t || !t.length; };
+  const buildOverviewBrief = () => {
+    const bal = getSummary('V122667758');
+    const mean = n => { const r = state.regimes.find(x => x.regime === n); return r ? Number(r.mean_pct) : null; };
+    const h = mean('hiking'), s = mean('stable'), e = mean('easing');
+    const g = bal && bal.yoy_pct_change != null ? Number(bal.yoy_pct_change) : null;
+    if (g == null) return;
+    const lines = [['Finding', `Consumer-credit growth was ${g.toFixed(2)}% year over year in ${fmtDate(bal.latest_date)}.`]];
+    if (h != null && s != null && e != null) {
+      const rel = g > Math.max(h, s, e) ? 'higher than' : g < Math.min(h, s, e) ? 'lower than' : 'within the range of';
+      lines.push(['Context', `That is ${rel} the historical averages of ${h.toFixed(2)}% in hiking, ${s.toFixed(2)}% in stable and ${e.toFixed(2)}% in easing months (descriptive, not causal).`]);
+    }
+    lines.push(['Watchpoint', 'Check whether changes in borrowing growth come with worsening arrears or other borrower stress. This dashboard has no arrears or default data, so it cannot answer that.']);
+    state.take.overview = lines; applyTakeaway();
+  };
   const metricLabels = {value: 'Observed level', yoy_pct_change: 'Year-over-year growth', abs_change: 'Change from prior period'};
   const metricValue = (row, metric) => {
     const value = num(row[metric]);
@@ -350,13 +392,13 @@
   };
   const installQuestionViews = () => {
     const notice = $('freshness-notice');
-    notice.querySelector('strong').textContent = 'Source quality and freshness.';
-    notice.insertAdjacentHTML('afterend', `<section id="overview-context" class="question-intro"><div class="question-copy"><strong>Canadian household borrowing in context.</strong> Bank of Canada rates and chartered-bank credit balances are paired with Statistics Canada household debt measures. Review published observations first, compare descriptive credit-growth patterns across rate regimes, then explore an editable mechanical interest-cost scenario. These aggregate patterns do not identify causal effects. <p class="method-note"><a href="methodology.md" target="_blank" rel="noopener">Metric definitions and methodology</a> · <a href="research_memo.md" target="_blank" rel="noopener">Research memo and limitations</a></p></div><aside class="coverage-card" aria-label="Data coverage and source health"><h2>Coverage and source health</h2><div id="coverage-content"><div class="empty">Loading verified data coverage…</div></div></aside></section>`);
+    notice.hidden = true;
+    notice.insertAdjacentHTML('afterend', `<section id="overview-context" class="question-intro"><details class="question-copy"><summary><strong>About this dashboard and its methods</strong></summary> Bank of Canada rates and chartered-bank credit balances are paired with Statistics Canada household debt measures. Review published observations first, compare descriptive credit-growth patterns across rate regimes, then explore an editable mechanical interest-cost scenario. These aggregate patterns do not identify causal effects. <p class="method-note"><a href="methodology.md" target="_blank" rel="noopener">Metric definitions and methodology</a> · <a href="research_memo.md" target="_blank" rel="noopener">Research memo and limitations</a></p></details><aside class="coverage-card" aria-label="Data coverage and source health"><h2>Coverage and source health</h2><div id="coverage-content"><div class="empty">Loading verified data coverage…</div></div></aside></section>`);
     $('kpis-section').innerHTML = `<article class="kpi"><div class="kpi-label">Policy rate <span>01</span></div><div class="kpi-value" id="kpi-policy">—</div><div class="kpi-detail" id="kpi-policy-detail">Bank of Canada · daily</div></article><article class="kpi"><div class="kpi-label">Prime lending rate <span>02</span></div><div class="kpi-value" id="kpi-prime">—</div><div class="kpi-detail" id="kpi-prime-detail">Bank of Canada · weekly</div></article><article class="kpi"><div class="kpi-label">Effective consumer-credit rate <span>03</span></div><div class="kpi-value" id="kpi-effective">—</div><div class="kpi-detail" id="kpi-effective-detail">Bank of Canada · monthly</div></article><article class="kpi"><div class="kpi-label">Consumer-credit growth <span>04</span></div><div class="kpi-value" id="kpi-growth">—</div><div class="kpi-detail" id="kpi-growth-detail">Year over year · monthly</div></article><article class="kpi"><div class="kpi-label">Consumer-credit balance <span>05</span></div><div class="kpi-value" id="kpi-balance">—</div><div class="kpi-detail" id="kpi-balance-detail">Chartered banks · CAD</div></article><article class="kpi"><div class="kpi-label">Household debt-to-income <span>06</span></div><div class="kpi-value" id="kpi-dti">—</div><div class="kpi-detail" id="kpi-dti-detail">Statistics Canada · quarterly</div></article>`;
     const controls = document.querySelector('#chart-section .controls');
     controls.insertAdjacentHTML('afterbegin', `<label class="control-label" for="metric-select">MEASURE</label><select id="metric-select" aria-label="Select chart measure"><option value="yoy_pct_change">Year-over-year growth</option><option value="abs_change">Change from prior period</option><option value="value">Observed level</option></select>`);
     const chart = $('chart-section');
-    chart.insertAdjacentHTML('afterend', `<section id="regime-section" class="regime-section hidden-view" aria-labelledby="regime-title"><div class="section-head"><div><div class="eyebrow">Observed association · not causal</div><h2 id="regime-title">Consumer-credit growth across policy regimes</h2><div class="section-note">Chartered-bank consumer-credit year-over-year growth, classified using the policy rate’s trailing 12-month change.</div></div></div><div id="regime-summary" class="regime-summary"><div class="empty">Loading verified regime results…</div></div><div class="research-grid"><section class="research-panel"><h2>Baseline comparison</h2><div class="section-note">Mean estimates with Newey–West HAC(12) confidence intervals. Block-bootstrap intervals are also reported because monthly outcomes are serially dependent.</div><div class="table-wrap"><table class="regime-table"><thead><tr><th>REGIME</th><th>N</th><th>SAMPLE PERIOD</th><th>MEAN</th><th>MEDIAN</th><th>SAMPLE SD</th><th>HAC(12) 95% CI</th><th>12-MONTH BLOCK 95% CI</th></tr></thead><tbody id="regime-body"><tr><td colspan="8" class="empty">No regime results available.</td></tr></tbody></table></div><p class="method-note">Intervals describe uncertainty in regime means under the stated methods; they are not causal effects. Independent-observation intervals are omitted here because the outcome is serially dependent. <a href="../../documentation/methodology.md" target="_blank" rel="noopener">Methodology</a> · <a href="../../reports/research_memo.md" target="_blank" rel="noopener">Research memo</a></p></section><section class="research-panel"><h2>Specification sensitivity</h2><div class="section-note">Compare reasonable thresholds, timing labels, and sample windows. The baseline point estimates are retained alongside each alternative.</div><label class="control-label" for="regime-spec-select">ALTERNATIVE SPECIFICATION</label><select id="regime-spec-select" aria-label="Select regime sensitivity specification"><option value="threshold_50bp">Threshold ±50 bp</option><option value="threshold_10bp">Threshold ±10 bp</option><option value="prior_month_label">Prior-month regime label</option><option value="post_2020">Post-2020 window</option><option value="pre_pandemic">Pre-pandemic window</option></select><div class="table-wrap" style="margin-top:12px"><table><thead><tr><th>REGIME</th><th>N</th><th>PERIOD</th><th>MEAN</th><th>HAC(12) 95% CI</th></tr></thead><tbody id="sensitivity-body"><tr><td colspan="5" class="empty">No sensitivity results for this specification.</td></tr></tbody></table></div><p id="sensitivity-note" class="method-note"></p></section></div><div class="research-grid"><section class="research-panel"><h2>Policy-change timing</h2><div class="section-note">Correlation between the policy rate’s trailing 12-month change at month t and credit growth at t+k. Descriptive timing only.</div><div class="table-wrap"><table><thead><tr><th>LAG</th><th>OBSERVATIONS</th><th>POLICY MONTHS</th><th>CORRELATION</th></tr></thead><tbody id="lag-body"><tr><td colspan="4" class="empty">No lag results available.</td></tr></tbody></table></div></section><section class="research-panel"><h2>Dynamic regression context</h2><div class="section-note" id="regression-specification">No adjusted model available.</div><div class="table-wrap"><table><thead><tr><th>TERM</th><th>ESTIMATE</th><th>HAC(12) 95% CI</th></tr></thead><tbody id="regression-body"><tr><td colspan="3" class="empty">No regression results available.</td></tr></tbody></table></div><p class="method-note">This short-sample OLS model uses lagged growth and a linear trend; configured monthly unemployment, inflation, and income controls are unavailable. The lagged policy-change terms overlap heavily (each is a trailing 12-month change), so they are highly collinear and the individual lag coefficients should not be interpreted separately; the pattern of offsetting signs is expected. It is a sensitivity analysis, not a causal model.</p></section></div></section>`);
+    chart.insertAdjacentHTML('afterend', `<section id="regime-section" class="regime-section hidden-view" aria-labelledby="regime-title"><div class="section-head"><div><div class="eyebrow">Observed association · not causal</div><h2 id="regime-title">Consumer-credit growth across policy regimes</h2><div class="section-note">Chartered-bank consumer-credit year-over-year growth, classified using the policy rate’s trailing 12-month change.</div></div></div><div id="regime-summary" class="regime-summary"><div class="empty">Loading verified regime results…</div></div><div class="research-grid one-col"><section class="research-panel"><h2>Baseline comparison</h2><div class="section-note">Mean estimates with Newey–West HAC(12) confidence intervals. Block-bootstrap intervals are also reported because monthly outcomes are serially dependent.</div><div class="table-wrap"><table class="regime-table"><thead><tr><th>REGIME</th><th>N</th><th>SAMPLE PERIOD</th><th>MEAN</th><th>MEDIAN</th><th>SAMPLE SD</th><th>HAC(12) 95% CI</th><th>12-MONTH BLOCK 95% CI</th></tr></thead><tbody id="regime-body"><tr><td colspan="8" class="empty">No regime results available.</td></tr></tbody></table></div><p class="method-note">Intervals describe uncertainty in regime means under the stated methods; they are not causal effects. Independent-observation intervals are omitted here because the outcome is serially dependent. <a href="../../documentation/methodology.md" target="_blank" rel="noopener">Methodology</a> · <a href="../../reports/research_memo.md" target="_blank" rel="noopener">Research memo</a></p></section></div><details class="analyst-details"><summary>Details for analysts: sensitivity, timing and regression checks</summary><div class="research-grid one-col"><section class="research-panel"><h2>Specification sensitivity</h2><div class="section-note">Compare reasonable thresholds, timing labels, and sample windows. The baseline point estimates are retained alongside each alternative.</div><label class="control-label" for="regime-spec-select">ALTERNATIVE SPECIFICATION</label><select id="regime-spec-select" aria-label="Select regime sensitivity specification"><option value="threshold_50bp">Threshold ±50 bp</option><option value="threshold_10bp">Threshold ±10 bp</option><option value="prior_month_label">Prior-month regime label</option><option value="post_2020">Post-2020 window</option><option value="pre_pandemic">Pre-pandemic window</option></select><div class="table-wrap" style="margin-top:12px"><table><thead><tr><th>REGIME</th><th>N</th><th>PERIOD</th><th>MEAN</th><th>HAC(12) 95% CI</th></tr></thead><tbody id="sensitivity-body"><tr><td colspan="5" class="empty">No sensitivity results for this specification.</td></tr></tbody></table></div><p id="sensitivity-note" class="method-note"></p></section></div><div class="research-grid"><section class="research-panel"><h2>Policy-change timing</h2><div class="section-note">Correlation between the policy rate’s trailing 12-month change at month t and credit growth at t+k. Descriptive timing only.</div><div class="table-wrap"><table><thead><tr><th>LAG</th><th>OBSERVATIONS</th><th>POLICY MONTHS</th><th>CORRELATION</th></tr></thead><tbody id="lag-body"><tr><td colspan="4" class="empty">No lag results available.</td></tr></tbody></table></div></section><section class="research-panel"><h2>Dynamic regression context</h2><div class="section-note" id="regression-specification">No adjusted model available.</div><div class="table-wrap"><table><thead><tr><th>TERM</th><th>ESTIMATE</th><th>HAC(12) 95% CI</th></tr></thead><tbody id="regression-body"><tr><td colspan="3" class="empty">No regression results available.</td></tr></tbody></table></div><p class="method-note">This short-sample OLS model uses lagged growth and a linear trend; configured monthly unemployment, inflation, and income controls are unavailable. The lagged policy-change terms overlap heavily (each is a trailing 12-month change), so they are highly collinear and the individual lag coefficients should not be interpreted separately; the pattern of offsetting signs is expected. It is a sensitivity analysis, not a causal model.</p></section></div></details></section>`);
     $('regime-summary').insertAdjacentHTML('afterend', `<section class="research-panel"><h2>Mean growth with 12-month block-bootstrap uncertainty</h2><div class="section-note">Point estimates and 95% intervals, on a common YoY percentage scale.</div><div id="regime-plot" aria-live="polite"></div><div class="coverage-line">● Mean &nbsp; ━ 12-month block-bootstrap 95% interval · x-axis: consumer-credit growth (% YoY)</div></section>`);
   };
   labelQuestionNavigation();
@@ -460,6 +502,11 @@
     }
     if (dti) { $('kpi-dti').textContent = `${Number(dti.current_value).toFixed(1)}%`; $('kpi-dti-detail').textContent = `StatCan · ${fmtDate(dti.latest_date)} · debt / disposable income`; }
     const latest = state.summary.map(s => s.latest_date).sort().at(-1);
+    if (policy && balance) {
+      const g = balance.yoy_pct_change == null ? null : Number(balance.yoy_pct_change);
+      state.take.overview = `The Bank of Canada policy rate is ${fmtValue(policy.current_value, policy.unit)}. Chartered-bank consumer credit stands at ${fmtValue(balance.current_value, balance.unit, true)}${g == null ? '' : `, ${g >= 0 ? 'up' : 'down'} ${Math.abs(g).toFixed(1)}% from a year earlier`}. Balance growth alone does not show borrower stress: this dashboard tracks balances and rates, not arrears or defaults.`;
+      applyTakeaway();
+    }
     $('latest-date').textContent = fmtDate(latest);
     const transformed = state.metadata.transformed_utc ? new Date(state.metadata.transformed_utc) : null;
     $('refresh-date').textContent = transformed ? `Processed ${new Intl.DateTimeFormat('en-CA', {dateStyle:'medium', timeZone:'UTC'}).format(transformed)}` : '';
@@ -479,6 +526,11 @@
     }
     const order = ['hiking','stable','easing'];
     const baseline = order.map(regime => state.regimes.find(row => row.regime === regime)).filter(Boolean);
+    const meanOf = name => { const r = baseline.find(x => x.regime === name); return r ? `${Number(r.mean_pct).toFixed(1)}%` : 'n/a'; };
+    if (baseline.length === 3) {
+      state.take.regimes = `Consumer-credit growth averaged ${meanOf('hiking')} year over year when rates were rising, ${meanOf('stable')} when steady and ${meanOf('easing')} when falling. This is a pattern in past data, not proof that rates caused it; the intervals below show how uncertain each average is.`;
+      applyTakeaway();
+    }
     $('regime-summary').innerHTML = baseline.map(row => `<article class="regime-card"><div class="regime-card-label">${safe(row.regime)} · baseline</div><div class="regime-card-value">${Number(row.mean_pct).toFixed(2)}%</div><div class="regime-card-detail">Mean YoY credit growth · N=${safe(row.n)} · HAC(12) 95% CI ${safe(ci(row.hac12_ci95_low,row.hac12_ci95_high))}</div></article>`).join('');
     const plotRows = baseline.map((row, index) => {
       const y = 42 + index * 44;
@@ -521,7 +573,7 @@
   };
   const renderAlerts = () => {
     const allActive = state.alerts.filter(a => a.is_alert === 'True' || a.is_alert === 'true').sort((a,b) => (a.severity === 'HIGH' ? 0 : 1) - (b.severity === 'HIGH' ? 0 : 1));
-    const active = allActive.slice(0, 7);
+    const active = allActive;
     $('alert-count-label').textContent = allActive.length > active.length
       ? `SHOWING TOP ${active.length} OF ${allActive.length}`
       : `${allActive.length} CURRENT FLAGS`;
@@ -532,20 +584,10 @@
     }).join('') : '<tr><td colspan="3" class="empty">No active flags in the latest observations.</td></tr>';
   };
   const renderFreshness = () => {
-    const warnings = state.validation.filter(v => v.status === 'WARN' || v.status === 'FAIL');
-    const stale = warnings.filter(v => v.rule.toLowerCase().includes('stale'));
-    const unhealthy = state.health.filter(source => source.health_status && source.health_status !== 'CURRENT');
-    if (warnings.length || unhealthy.length) {
-      $('freshness-notice').hidden = false;
-      const failed = unhealthy.filter(source => source.health_status === 'FAILED');
-      const partial = unhealthy.filter(source => source.health_status === 'PARTIAL');
-      const staleSources = unhealthy.filter(source => source.health_status === 'STALE');
-      const messages = [];
-      if (failed.length) messages.push(`Failed refresh: ${failed.map(x => formatSourceName(x.source)).join(', ')}`);
-      if (partial.length) messages.push(`Partial or quality warning: ${partial.map(x => formatSourceName(x.source)).join(', ')}`);
-      if (stale.length || staleSources.length) messages.push(stale.length ? `${stale.map(x => `${x.records_affected} ${formatSourceName(x.source)} series overdue`).join('; ')}` : `Stale source: ${staleSources.map(x => formatSourceName(x.source)).join(', ')}`);
-      if (!messages.length) messages.push(`${warnings.length} validation warning(s) need review.`);
-      $('freshness-copy').textContent = `${messages.join('. ')}. Observation dates and source refresh times are shown separately.`;
+    const notice = $('freshness-notice');
+    if (notice) {
+      notice.hidden = true;
+      notice.style.display = 'none';
     }
   };
   const fmtScenarioCost = millions => `CAD ${new Intl.NumberFormat('en-CA', {
@@ -589,6 +631,9 @@
       $('scenario-partial-annual-detail').textContent = `CAD ${result.partial_annualized_millions_cad.toFixed(2)} million per year at horizon end`;
       $('scenario-partial-cumulative-detail').textContent = `CAD ${result.partial_cumulative_millions_cad.toFixed(2)} million over ${input.horizon_months} months`;
       $('scenario-rate-change').textContent = `Assumed borrowing-rate change: ${result.borrowing_rate_change_bp.toFixed(1)} bps (${(result.borrowing_rate_change_bp / 100).toFixed(3)} percentage points). Balance counted: CAD ${result.partial_balance_millions_cad.toLocaleString('en-CA', {maximumFractionDigits:2})} million.`;
+      const barRows = [25, 50, 100, 200].map(s => ({ s, r: window.InterestCostEngine.calculate(scenarioInputs(s)) }));
+      const barMax = Math.max(...barRows.map(b => Math.abs(b.r.mechanical_annualized_millions_cad)), 1);
+      $('scenario-bars').innerHTML = barRows.map(b => `<div class="bar-row"><span class="bar-label">+${b.s} bp</span><div class="bar-tracks"><i class="bar partial" style="width:${Math.max(1, Math.abs(b.r.partial_annualized_millions_cad) / barMax * 100)}%"></i><i class="bar full" style="width:${Math.max(1, Math.abs(b.r.mechanical_annualized_millions_cad) / barMax * 100)}%"></i></div><span class="bar-value">${safe(fmtScenarioCost(b.r.partial_annualized_millions_cad))} · ${safe(fmtScenarioCost(b.r.mechanical_annualized_millions_cad))}</span></div>`).join('') + '<div class="bar-key"><i class="bar partial"></i> Your assumptions (partial) <i class="bar full"></i> Full mechanical upper bound</div>';
       $('scenario-comparison-body').innerHTML = [25, 50, 100, 200].map(shock => {
         const row = window.InterestCostEngine.calculate(scenarioInputs(shock));
         return `<tr><td class="mono">+${shock} bp</td><td class="mono">${(row.borrowing_rate_change_bp / 100).toFixed(3)} pp</td><td class="mono">${safe(fmtScenarioCost(row.partial_annualized_millions_cad))}</td><td class="mono">${safe(fmtScenarioCost(row.partial_cumulative_millions_cad))}</td><td class="mono">${safe(fmtScenarioCost(row.mechanical_annualized_millions_cad))}</td></tr>`;
@@ -598,7 +643,7 @@
       ['scenario-partial-annual','scenario-partial-cumulative','scenario-mechanical-annual','scenario-mechanical-cumulative'].forEach(id => $(id).textContent = 'Unavailable');
       $('scenario-partial-annual-detail').textContent = 'Correct the scenario inputs to calculate.';
       $('scenario-partial-cumulative-detail').textContent = 'Correct the scenario inputs to calculate.';
-      $('scenario-rate-change').textContent = '';
+      $('scenario-rate-change').textContent = ''; $('scenario-bars').innerHTML = '';
       $('scenario-comparison-body').innerHTML = '<tr><td colspan="5" class="empty">Comparison unavailable until inputs are valid.</td></tr>';
     }
   };
@@ -613,14 +658,14 @@
       monitoring: ['Monitoring', 'Statistical flags for analyst review, not risk classifications.'],
       scenario: ['What could happen?', 'Change the rate shock and repricing assumptions to see annualized cost sensitivity.']
     }[view];
-    $('page-title').textContent = copy[0]; $('page-subtitle').textContent = copy[1];
+    $('page-title').textContent = copy[0]; $('page-subtitle').textContent = copy[1]; applyTakeaway();
     const scenario = view === 'scenario';
     const regimes = view === 'regimes';
     $('overview-context').classList.toggle('hidden-view', view !== 'overview');
-    $('kpis-section').classList.toggle('hidden-view', scenario || regimes);
+    $('kpis-section').classList.toggle('hidden-view', view !== 'overview');
     $('chart-section').classList.toggle('hidden-view', view === 'monitoring' || scenario || regimes);
     $('changes-section').classList.toggle('hidden-view', view === 'monitoring' || scenario || regimes);
-    $('alerts-section').classList.toggle('hidden-view', view === 'rates' || scenario || regimes);
+    $('alerts-section').classList.toggle('hidden-view', view !== 'monitoring');
     $('regime-section').classList.toggle('hidden-view', !regimes);
     $('scenario-section').classList.toggle('hidden-view', !scenario);
     makeOptions(); renderMovements();
@@ -635,7 +680,7 @@
       [state.summary,state.timeseries,state.alerts,state.validation,state.metadata,state.freshness,state.health,state.regimes,state.sensitivity,state.lags,state.regression] = files;
       renderKpis(); renderCoverage();
       $('coverage-content').insertAdjacentHTML('afterbegin', `<div class="coverage-row"><span>Combined observed span<br>${safe(state.metadata.date_min)} to ${safe(state.metadata.date_max)} · ${state.health.reduce((sum,row) => sum + Number(row.series_count || 0),0)} series · ${state.health.reduce((sum,row) => sum + Number(row.observations || 0),0).toLocaleString()} observations</span><span>Processed<br>${safe(state.metadata.transformed_utc ? state.metadata.transformed_utc.replace('T',' ').slice(0,19) + ' UTC' : 'unknown')}</span></div>`);
-      renderFreshness(); renderAlerts(); renderScenario(); renderRegimes(); makeOptions(); renderMovements();
+      renderFreshness(); renderAlerts(); renderScenario(); renderRegimes(); makeOptions(); renderMovements(); buildOverviewBrief();
     } catch (error) {
       $('load-error').hidden = false;
       $('load-error').innerHTML = `<strong>Dashboard data could not be loaded.</strong> ${safe(error.message)}<br>Build the static site with <code>python -m python.reporting.prepare_dashboard</code>, then serve <code>frontend/site</code> with <code>python -m http.server 8000 --directory frontend/site</code>.`;

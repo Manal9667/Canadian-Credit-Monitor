@@ -89,7 +89,7 @@ Percent change is `100 * (current - prior) / abs(prior)`; a zero prior value yie
 
 The SQL `vw_category_share` excludes the consumer-credit aggregate because its component balances are also present. Its denominator is explicitly named `tracked_component_total`; the resulting shares are not total household-debt composition. The rate-spread view joins series on exact observation dates and does not interpolate or carry values forward.
 
-More detailed calculation and alert thresholds are in [documentation/methodology.md](documentation/methodology.md).
+More detailed calculation and alert thresholds are in [documentation/methodology.md](methodology.md).
 
 ## Setup (Windows PowerShell)
 
@@ -183,7 +183,7 @@ python -m python.validation.engine
 python -m python.db.duckdb_runner
 ```
 
-The 38 tests cover calendar alignment, duplicate keys, malformed dates and values, zero-versus-missing source values, mocked ingestion failures, snapshot preservation, freshness boundaries, SQL views, regime and lag calculations, interest-cost formulas, and local README links. The fixtures are in-memory or temporary files; no full-history download or live endpoint is needed. GitHub Actions runs Ruff, the unit suite, validation, transformation, DuckDB, research outputs, and dashboard build on Python 3.12 and 3.14 for pull requests.
+The 38 tests cover calendar alignment, duplicate keys, malformed dates and values, zero-versus-missing source values, mocked ingestion failures, snapshot preservation, freshness boundaries, SQL views, regime and lag calculations, interest-cost formulas, and local README links. The fixtures are in-memory or temporary files; no full-history download or live endpoint is needed. GitHub Actions runs Ruff, the unit suite, the JavaScript engine test, validation, transformation, DuckDB, research outputs, and dashboard build on Python 3.12 and 3.14 for pull requests and pushes to main.
 
 ## Prioritized Audit Checklist
 
