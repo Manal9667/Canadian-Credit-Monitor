@@ -1,0 +1,7 @@
+product,balance_series_id,rate_series_id,as_of_date,balance_millions_cad,current_effective_rate_pct,rate_shock_bp,rate_shock_pct_of_balance,incremental_annual_interest_millions_cad
+Consumer credit,V122667758,V122667809,2026-07-01,704582.0,7.92,100,1.0,7045.82
+Consumer credit,V122667758,V122667809,2026-07-01,704582.0,7.92,200,2.0,14091.64
+Credit cards,V122667761,V122667812,2026-07-01,107880.0,21.28,100,1.0,1078.8
+Credit cards,V122667761,V122667812,2026-07-01,107880.0,21.28,200,2.0,2157.6
+Business loans,V122667770,V122667821,2026-07-01,941538.0,4.64,100,1.0,9415.38
+Business loans,V122667770,V122667821,2026-07-01,941538.0,4.64,200,2.0,18830.76

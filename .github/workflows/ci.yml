@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: Tests and lint (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.12", "3.14"]
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
+      - name: Install pinned dependencies
+        run: python -m pip install -r requirements-dev.txt
+      - name: Lint
+        run: python -m ruff check python tests
+      - name: Unit tests
+        run: python -m unittest discover -v
+      - name: Validate and rebuild from checked-in snapshots (offline)
+        run: |
+          python -m python.validation.engine
+          python -m python.transformation.transform
+          python -m python.analytics.metrics
+          python -m python.analytics.anomaly_detection
+          python -m python.reporting.reporting_summary
+          python -m python.db.duckdb_runner
+          python -m python.analysis.household_credit_research
+          python -m python.analysis.run_credit_extensions
+          python -m python.analysis.run_interest_cost_scenarios
+          python -m python.reporting.prepare_dashboard

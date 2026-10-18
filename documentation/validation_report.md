@@ -1,15 +1,17 @@
 # Data Quality Validation Report
 
-_Generated: 2026-09-27T01:14:20.845186+00:00_
+_Generated: 2026-10-18T16:38:11.093449+00:00_
 
 This report is produced automatically by the validation framework (`python/validation`). Each rule records its status, the number of records affected, a severity grade, and a recommended action.
+
+Per-series source observation, snapshot retrieval, validation processing, and next expected publication dates are recorded in `data/processed/series_freshness.csv`. Expected dates are schedule projections, not guarantees.
 
 **Overall gate:** PASS - safe to load
 
 ---
 ## Source: bank_of_canada
 
-- Observations checked: 11434
+- Observations checked: 11465
 - Series checked: 16
 - Result: 9 PASS / 1 WARN / 0 FAIL
 - Worst severity: MEDIUM
@@ -93,10 +95,10 @@ Recommended action: None
 
 Check: Stale data (latest observation older than expected)
 Status: WARN
-Records affected: 11
+Records affected: 5
 Severity: MEDIUM
 Recommended action: Confirm source has not paused publication.
-Details: stale_series: 11
+Details: stale_series: {'V39079': {'age_days': 6, 'expected_next_publication_date': '2026-10-13', 'overdue_after_date': '2026-10-15'}, 'V80691311': {'age_days': 11, 'expected_next_publication_date': '2026-10-14', 'overdue_after_date': '2026-10-16'}, 'V80691333': {'age_days': 11, 'expected_next_publication_date': '2026-10-14', 'overdue_after_date': '2026-10-16'}, 'V80691334': {'age_days': 11, 'expected_next_publication_date': '2026-10-14', 'overdue_after_date': '2026-10-16'}, 'V80691335': {'age_days': 11, 'expected_next_publication_date': '2026-10-14', 'overdue_after_date': '2026-10-16'}}
 
 
 ## Source: statistics_canada

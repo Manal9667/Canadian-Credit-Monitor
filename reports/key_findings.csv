@@ -1,0 +1,11 @@
+finding,computed_value,unit,series_used,date_range,n
+Prime-policy mechanical pass-through,2.2,percentage points latest spread,"V80691311, V39079",2009-04-22 to 2026-10-07,912
+Consumer effective-rate spread over policy,5.67,percentage points latest spread,"V122667809, V39079",2016-07-01 to 2026-07-01,121
+Consumer-credit YoY growth during hiking regimes,5.8099,average YoY growth percent,"V122667758, V39079",2017-08-01 to 2024-05-01,52
+Consumer-credit YoY growth during easing regimes,3.5333,average YoY growth percent,"V122667758, V39079",2020-03-01 to 2026-07-01,37
+Consumer-credit YoY growth during stable regimes,3.2329,average YoY growth percent,"V122667758, V39079",2017-07-01 to 2024-07-01,20
+Debt-to-income during hiking regimes,180.1914,average ratio,"STATCAN_v1038036698, V39079",2010-07-01 to 2024-04-01,22
+Debt-to-income during easing regimes,176.3131,average ratio,"STATCAN_v1038036698, V39079",2015-04-01 to 2026-04-01,16
+Debt-to-income during stable regimes,175.6381,average ratio,"STATCAN_v1038036698, V39079",2010-04-01 to 2024-07-01,27
+Largest tracked household-credit component,54.4947,percent share: Uninsured mortgages,"V122667742, V122667736, V122667762, V122667760, V122667761, V122667763",2026-07-01 to 2026-07-01,6
+Consumer-credit +100 bp mechanical sensitivity,7045.82,millions CAD annual interest,"V122667758, V122667809",2026-07-01 to 2026-07-01,1

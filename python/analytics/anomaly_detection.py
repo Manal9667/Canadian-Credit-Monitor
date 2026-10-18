@@ -25,6 +25,7 @@ import numpy as np
 import pandas as pd
 
 from ..common.config import PROCESSED_DIR
+from ..common.io_utils import dataframe_writer, publish_output_bundle
 from ..common.logging_utils import get_logger
 
 logger = get_logger("analytics.anomaly_detection")
@@ -137,7 +138,6 @@ def run() -> dict[str, Any]:
         | (flagged["pct_change_flag"])
         | (flagged["tail_flag"])
     ].copy()
-    history.to_csv(HISTORY_OUT, index=False)
 
     # Latest observation per series -> the "requires investigation" list.
     latest = flagged.sort_values("observation_date").groupby("series_id").tail(1).copy()
@@ -145,7 +145,10 @@ def run() -> dict[str, Any]:
         (latest["severity"] != "NORMAL") | latest["pct_change_flag"] | latest["tail_flag"]
     )
     latest = latest.sort_values("zscore", key=lambda s: s.abs(), ascending=False)
-    latest.to_csv(ALERTS_OUT, index=False)
+    publish_output_bundle({
+        HISTORY_OUT: dataframe_writer(history),
+        ALERTS_OUT: dataframe_writer(latest),
+    })
 
     n_alerts = int(latest["is_alert"].sum())
     logger.info(

@@ -21,6 +21,7 @@ import numpy as np
 import pandas as pd
 
 from ..common.config import PROCESSED_DIR
+from ..common.io_utils import dataframe_writer, publish_output_bundle
 from ..common.logging_utils import get_logger
 
 logger = get_logger("analytics.metrics")
@@ -75,17 +76,20 @@ def compute_timeseries(df: pd.DataFrame) -> pd.DataFrame:
         grp["value"].transform(lambda s: s.rolling(ROLLING_LONG, min_periods=1).mean()).round(4)
     )
 
-    # Year-over-year: only for regularly spaced monthly/quarterly series.
-    def _yoy(sub: pd.DataFrame) -> pd.Series:
-        freq = sub["frequency"].iloc[0]
-        periods = PERIODS_PER_YEAR.get(freq)
-        if freq not in {"monthly", "quarterly"} or periods is None:
-            return pd.Series(np.nan, index=sub.index)
-        return sub["value"].shift(periods)
-
-    out["value_year_ago"] = grp[["value", "frequency"]].apply(
-        lambda sub: _yoy(sub)
-    ).reset_index(level=0, drop=True)
+    # Match the same calendar date one year earlier. A row offset is wrong when
+    # an observation is missing or a source revises its reporting history.
+    out["value_year_ago"] = np.nan
+    for series_id, sub in out.groupby("series_id", sort=False):
+        frequency = sub["frequency"].iloc[0]
+        if frequency not in {"monthly", "quarterly"}:
+            continue
+        if sub["observation_date"].duplicated().any():
+            raise ValueError(f"Duplicate observation dates for series {series_id}")
+        values_by_date = sub.set_index("observation_date")["value"]
+        prior_dates = sub["observation_date"].map(
+            lambda date: date - pd.DateOffset(years=1)
+        )
+        out.loc[sub.index, "value_year_ago"] = prior_dates.map(values_by_date).to_numpy()
     out["yoy_abs_change"] = out["value"] - out["value_year_ago"]
     out["yoy_pct_change"] = _pct_change(out["value"], out["value_year_ago"])
 
@@ -155,8 +159,10 @@ def run() -> dict[str, Any]:
     ts = compute_timeseries(df)
     summary = compute_summary(df, ts)
 
-    ts.to_csv(TIMESERIES_OUT, index=False)
-    summary.to_csv(SUMMARY_OUT, index=False)
+    publish_output_bundle({
+        TIMESERIES_OUT: dataframe_writer(ts),
+        SUMMARY_OUT: dataframe_writer(summary),
+    })
 
     logger.info(
         "Metrics computed: %s timeseries rows, %s series summarised -> %s, %s",

@@ -1,0 +1,643 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f5f1">
+  <title>Northline | Canadian Credit Monitor</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f4f5f1;
+      --surface: #fff;
+      --ink: #18211d;
+      --muted: #748078;
+      --line: #dfe4dd;
+      --green: #28654d;
+      --green-soft: #e7f0e9;
+      --red: #a4523d;
+      --red-soft: #f8ece7;
+      --gold: #a27a36;
+      --mono: 'DM Mono', 'Cascadia Code', monospace;
+      --sans: 'DM Sans', 'Segoe UI', sans-serif;
+      --display: 'Manrope', 'Segoe UI', sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--sans); font-size: 14px; }
+    button, select { color: inherit; font: inherit; }
+    .shell { min-height: 100vh; display: grid; grid-template-columns: 224px minmax(0, 1fr); }
+    .rail { padding: 27px 16px 20px; border-right: 1px solid var(--line); background: #f8f9f6; display: flex; flex-direction: column; }
+    .brand { display: flex; gap: 11px; align-items: center; padding: 0 10px 34px; }
+    .brand-mark { width: 32px; height: 32px; display: grid; place-items: center; background: var(--green); color: white; border-radius: 9px; font: 700 13px var(--display); }
+    .brand-name { font: 800 14px var(--display); letter-spacing: .01em; }
+    .brand-sub { display: block; color: var(--muted); font: 10px var(--mono); margin-top: 3px; }
+    .nav-label { padding: 0 11px; margin: 0 0 9px; color: #9aa39c; font: 10px var(--mono); text-transform: uppercase; letter-spacing: .08em; }
+    .nav { display: grid; gap: 4px; }
+    .nav button { border: 0; background: transparent; text-align: left; width: 100%; border-radius: 7px; padding: 11px 12px; color: #58635c; cursor: pointer; display: flex; align-items: center; gap: 11px; transition: background .18s, color .18s; }
+    .nav button:hover { background: #eef1ec; color: var(--ink); }
+    .nav button.active { color: var(--green); background: var(--green-soft); font-weight: 700; }
+    .nav-icon { width: 16px; height: 16px; display: inline-grid; place-items: center; font: 16px var(--mono); }
+    .rail-bottom { margin-top: auto; padding: 20px 10px 0; border-top: 1px solid var(--line); }
+    .source-mini { font-size: 11px; color: var(--muted); line-height: 1.6; }
+    .source-mini strong { color: var(--ink); font-weight: 600; }
+    main { min-width: 0; padding: 32px clamp(20px, 4vw, 58px) 52px; max-width: 1600px; width: 100%; margin: 0 auto; }
+    .topline { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-bottom: 33px; }
+    .eyebrow { color: var(--green); text-transform: uppercase; letter-spacing: .1em; font: 10px var(--mono); }
+    h1 { font: 700 27px var(--display); letter-spacing: 0; margin: 8px 0 5px; }
+    .subhead { color: var(--muted); margin: 0; }
+    .asof { text-align: right; color: var(--muted); font: 11px var(--mono); line-height: 1.7; }
+    .asof strong { display: block; font-weight: 400; color: var(--ink); }
+    .notice { border: 1px solid #eadbc0; background: #fbf6eb; color: #785c2d; padding: 12px 15px; border-radius: 7px; display: flex; align-items: flex-start; gap: 10px; margin-bottom: 23px; line-height: 1.5; }
+    .notice[hidden] { display: none; }
+    .notice-mark { font: 500 13px var(--mono); }
+    .notice strong { color: #60471e; font-weight: 700; }
+    .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(155px, 1fr)); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; margin-bottom: 22px; }
+    .kpi { min-width: 0; padding: 18px 20px 17px; border-right: 1px solid var(--line); }
+    .kpi:last-child { border-right: 0; }
+    .kpi-label { color: var(--muted); font-size: 11px; display: flex; align-items: center; justify-content: space-between; gap: 5px; }
+    .kpi-label span { margin-left: 6px; flex-shrink: 0; }
+    .kpi-value { margin-top: 12px; font: 700 24px var(--display); letter-spacing: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .kpi-detail { margin-top: 6px; color: var(--muted); font: 10px var(--mono); }
+    .delta-up { color: var(--red); }
+    .delta-down { color: var(--green); }
+    .section-head { display: flex; align-items: end; justify-content: space-between; gap: 18px; margin: 28px 0 13px; }
+    h2 { font: 700 16px var(--display); margin: 0; }
+    .section-note { color: var(--muted); font-size: 11px; margin-top: 5px; }
+    .controls { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; }
+    .control-label { color: var(--muted); font: 10px var(--mono); margin-right: 1px; }
+    select { background: var(--surface); border: 1px solid var(--line); border-radius: 5px; padding: 8px 27px 8px 10px; outline: none; cursor: pointer; max-width: 245px; }
+    select:focus-visible, button:focus-visible { outline: 2px solid #80aa93; outline-offset: 2px; }
+    .range { display: flex; border: 1px solid var(--line); border-radius: 5px; padding: 3px; background: var(--surface); }
+    .range button { border: 0; background: transparent; border-radius: 3px; padding: 5px 8px; color: var(--muted); font: 10px var(--mono); cursor: pointer; }
+    .range button.active { color: var(--green); background: var(--green-soft); }
+    .chart-panel { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 18px 20px 12px; }
+    .chart-meta { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+    .chart-current { font: 700 21px var(--display); }
+    .chart-caption { color: var(--muted); font-size: 11px; margin-top: 4px; }
+    .chart-legend { color: var(--muted); font: 10px var(--mono); display: flex; gap: 7px; align-items: center; margin-top: 6px; }
+    .legend-line { width: 15px; height: 2px; background: var(--green); }
+    canvas { width: 100%; height: 250px; display: block; margin-top: 10px; }
+    .lower-grid { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(300px, .9fr); gap: 22px; margin-top: 27px; }
+    .plain-panel { min-width: 0; }
+    .panel-title { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
+    .panel-title span { color: var(--muted); font: 10px var(--mono); }
+    .table-wrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 11px; }
+    th { color: var(--muted); font: 10px var(--mono); font-weight: 400; padding: 11px 12px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+    td { padding: 11px 12px; border-bottom: 1px solid #edf0eb; white-space: nowrap; }
+    tr:last-child td { border-bottom: 0; }
+    .name-cell { white-space: normal; min-width: 160px; max-width: 250px; font-weight: 600; }
+    .mono { font-family: var(--mono); }
+    .pill { display: inline-block; border-radius: 99px; padding: 4px 7px; font: 9px var(--mono); }
+    .pill.high, .pill.medium { background: var(--red-soft); color: var(--red); }
+    .pill.normal { background: var(--green-soft); color: var(--green); }
+    .alert-reason { max-width: 290px; white-space: normal; color: #68736c; line-height: 1.45; }
+    .empty { text-align: center; padding: 28px 12px; color: var(--muted); }
+    .foot { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; color: var(--muted); font-size: 10px; line-height: 1.6; border-top: 1px solid var(--line); margin-top: 34px; padding-top: 14px; }
+    .error { background: var(--red-soft); color: #783c2d; border: 1px solid #ebcfc4; padding: 14px; border-radius: 7px; margin-bottom: 18px; }
+    .scenario-grid { display: grid; grid-template-columns: minmax(280px, .8fr) minmax(0, 1.2fr); gap: 20px; margin-top: 20px; }
+    .scenario-card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 20px; min-width: 0; }
+    .scenario-card h2 { margin-bottom: 5px; }
+    .scenario-intro, .scenario-help, .scenario-source, .scenario-disclaimer { color: var(--muted); font-size: 11px; line-height: 1.55; }
+    .scenario-form { display: grid; gap: 13px; margin-top: 17px; }
+    .scenario-field { display: grid; gap: 5px; }
+    .scenario-field label { display: flex; justify-content: space-between; gap: 10px; font-size: 11px; font-weight: 600; }
+    .scenario-field label span { color: var(--muted); font: 10px var(--mono); font-weight: 400; }
+    .scenario-field input, .scenario-field select { width: 100%; max-width: none; padding: 9px 10px; }
+    .scenario-results { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; margin: 17px 0; }
+    .scenario-result { background: #f7f9f6; border: 1px solid var(--line); border-radius: 6px; padding: 13px; min-width: 0; }
+    .scenario-result.main { background: var(--green-soft); border-color: #d5e5d9; }
+    .scenario-result-label { color: var(--muted); font: 10px var(--mono); text-transform: uppercase; }
+    .scenario-result-value { font: 700 19px var(--display); margin-top: 8px; overflow-wrap: anywhere; }
+    .scenario-result-detail { color: var(--muted); font-size: 10px; margin-top: 4px; line-height: 1.45; }
+    .scenario-error { color: var(--red); min-height: 18px; font-size: 11px; }
+    .scenario-table { margin-top: 16px; }
+    .scenario-source { border-top: 1px solid var(--line); margin-top: 16px; padding-top: 13px; }
+    .assumption-tag { display: inline-block; border-radius: 99px; padding: 3px 7px; background: #f4efe3; color: #7d612c; font: 9px var(--mono); text-transform: uppercase; }
+    .question-intro { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(230px, .7fr); gap: 22px; align-items: start; margin: 20px 0 24px; }
+    .question-copy { max-width: 740px; color: #4f5d54; line-height: 1.65; }
+    .question-copy strong { color: var(--ink); }
+    .coverage-card, .method-card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; }
+    .coverage-card h2, .method-card h2 { font-size: 12px; margin-bottom: 8px; }
+    .coverage-row { display: flex; justify-content: space-between; gap: 10px; padding: 5px 0; border-bottom: 1px solid #edf0eb; font-size: 11px; }
+    .coverage-row:last-child { border-bottom: 0; }
+    .coverage-row span:last-child { text-align: right; color: var(--muted); font-family: var(--mono); }
+    .source-status { display: inline-block; font: 9px var(--mono); padding: 3px 6px; border-radius: 99px; background: var(--green-soft); color: var(--green); }
+    .source-status.stale, .source-status.failed, .source-status.partial { background: var(--red-soft); color: var(--red); }
+    .regime-summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 18px 0; }
+    .regime-card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
+    .regime-card-label { color: var(--muted); font: 10px var(--mono); text-transform: uppercase; }
+    .regime-card-value { font: 700 23px var(--display); margin: 8px 0 3px; }
+    .regime-card-detail { color: var(--muted); font-size: 10px; line-height: 1.5; }
+    .regime-plot { width: 100%; height: auto; display: block; margin: 4px 0; }
+    .research-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(280px, .75fr); gap: 18px; margin-top: 18px; }
+    .research-panel { min-width: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 18px; }
+    .research-panel h2 { margin-bottom: 7px; }
+    .research-panel .section-note { margin-bottom: 12px; }
+    .regime-table td { white-space: nowrap; }
+    .regime-table .regime-name { text-transform: capitalize; font-weight: 700; }
+    .method-note { color: var(--muted); font-size: 11px; line-height: 1.6; margin: 12px 0; }
+    .method-note a { color: var(--green); }
+    .coverage-line { color: var(--muted); font-size: 10px; margin: 8px 0 0; }
+    .hidden-view { display: none !important; }
+    .fade-in { animation: reveal .42s ease both; }
+    @keyframes reveal { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    @media (max-width: 1050px) {
+      .shell { grid-template-columns: 190px minmax(0, 1fr); }
+      main { padding-inline: 25px; }
+      .kpi { padding-inline: 14px; }
+      .kpi-value { font-size: 20px; }
+      .lower-grid { grid-template-columns: 1fr; }
+      .scenario-grid { grid-template-columns: 1fr; }
+      .question-intro, .research-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 700px) {
+      .shell { display: block; }
+      .rail { padding: 12px 14px 9px; border-right: 0; border-bottom: 1px solid var(--line); }
+      .brand { padding: 0 3px 10px; }
+      .nav-label, .rail-bottom { display: none; }
+      .nav { display: flex; gap: 5px; overflow-x: auto; padding-bottom: 2px; }
+      .nav button { width: auto; white-space: nowrap; padding: 8px 10px; font-size: 12px; }
+      .nav-icon { display: none; }
+      main { padding: 23px 15px 34px; }
+      .topline { align-items: flex-start; margin-bottom: 22px; }
+      h1 { font-size: 23px; }
+      .asof { font-size: 9px; }
+      .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .kpi:nth-child(2n) { border-right: 0; }
+      .kpi:not(:nth-last-child(-n+2)) { border-bottom: 1px solid var(--line); }
+      .kpi-value { font-size: 19px; }
+      .section-head { align-items: flex-start; flex-direction: column; }
+      .controls { width: 100%; }
+      select { max-width: 100%; }
+      .chart-panel { padding: 14px 12px 8px; }
+      canvas { height: 210px; }
+      .foot { flex-direction: column; }
+      .regime-summary { grid-template-columns: 1fr; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="rail">
+      <div class="brand">
+        <div class="brand-mark">N</div>
+        <div><div class="brand-name">NORTHLINE</div><span class="brand-sub">CANADIAN CREDIT MONITOR</span></div>
+      </div>
+      <p class="nav-label">Workspace</p>
+      <nav class="nav" aria-label="Dashboard sections">
+        <button class="active" data-view="overview"><span class="nav-icon">⌂</span>Overview</button>
+        <button data-view="credit"><span class="nav-icon">↗</span>Credit indicators</button>
+        <button data-view="rates"><span class="nav-icon">⌁</span>Rates</button>
+        <button data-view="scenario"><span class="nav-icon">∑</span>Cost scenarios</button>
+        <button data-view="monitoring"><span class="nav-icon">◎</span>Monitoring</button>
+      </nav>
+      <div class="rail-bottom"><div class="nav-label" style="padding:0;margin-bottom:8px">Data providers</div><div class="source-mini"><strong>Bank of Canada</strong><br>Valet API · public data<br><strong>Statistics Canada</strong><br>Web Data Service · Open Licence</div></div>
+    </aside>
+    <main>
+      <div id="load-error" class="error" hidden></div>
+      <header class="topline fade-in">
+        <div><div class="eyebrow">Economic indicators / Canada</div><h1 id="page-title">Market overview</h1><p class="subhead" id="page-subtitle">A clear read on credit conditions and rates.</p></div>
+        <div class="asof">LATEST OBSERVATION<strong id="latest-date">Loading data…</strong><span id="refresh-date"></span></div>
+      </header>
+      <div id="freshness-notice" class="notice" hidden><span class="notice-mark">!</span><div><strong>Source data may be stale.</strong> <span id="freshness-copy"></span></div></div>
+      <section id="kpis-section" class="kpis" aria-label="Key indicators">
+        <article class="kpi"><div class="kpi-label">Policy rate <span>01</span></div><div class="kpi-value" id="kpi-policy">—</div><div class="kpi-detail" id="kpi-policy-detail">Bank of Canada · daily</div></article>
+        <article class="kpi"><div class="kpi-label">Household debt <span>02</span></div><div class="kpi-value" id="kpi-debt">—</div><div class="kpi-detail" id="kpi-debt-detail">Statistics Canada · quarterly</div></article>
+        <article class="kpi"><div class="kpi-label">Credit card balance <span>03</span></div><div class="kpi-value" id="kpi-card">—</div><div class="kpi-detail" id="kpi-card-detail">Bank of Canada · monthly</div></article>
+        <article class="kpi"><div class="kpi-label">Current alerts <span>04</span></div><div class="kpi-value" id="kpi-alerts">—</div><div class="kpi-detail" id="kpi-alerts-detail">Across configured series</div></article>
+      </section>
+
+      <section id="chart-section">
+        <div class="section-head">
+          <div><h2>Indicator history</h2><div class="section-note" id="chart-note">Explore published observations by series and period.</div></div>
+          <div class="controls">
+            <label class="control-label" for="series-select">SERIES</label><select id="series-select" aria-label="Select indicator"></select>
+            <div class="range" role="group" aria-label="Chart period">
+              <button data-years="1">1Y</button><button data-years="3">3Y</button><button data-years="5" class="active">5Y</button><button data-years="0">ALL</button>
+            </div>
+          </div>
+        </div>
+        <div class="chart-panel">
+          <div class="chart-meta"><div><div class="chart-current" id="chart-current">—</div><div class="chart-caption" id="chart-caption">Select an indicator</div></div><div class="chart-legend"><i class="legend-line"></i>Observed</div></div>
+          <canvas id="history-chart" role="img" aria-label="Selected indicator over time"></canvas>
+        </div>
+      </section>
+
+      <div class="lower-grid">
+        <section id="changes-section" class="plain-panel">
+          <div class="panel-title"><h2>Latest movements</h2><span>BY ABSOLUTE CHANGE</span></div>
+          <div class="table-wrap"><table><thead><tr><th>INDICATOR</th><th>VALUE</th><th>PERIOD Δ</th><th>YOY Δ</th><th>DATE</th></tr></thead><tbody id="changes-body"></tbody></table></div>
+        </section>
+        <section id="alerts-section" class="plain-panel">
+          <div class="panel-title"><h2>Monitoring</h2><span id="alert-count-label">CURRENT FLAGS</span></div>
+          <div class="table-wrap"><table><thead><tr><th>INDICATOR</th><th>LEVEL</th><th>WHY IT WAS FLAGGED</th></tr></thead><tbody id="alerts-body"></tbody></table></div>
+        </section>
+      </div>
+      <section id="scenario-section" class="hidden-view" aria-labelledby="scenario-title">
+        <div class="section-head"><div><h2 id="scenario-title">Interest-cost scenario engine</h2><div class="section-note">Static balance sensitivity with explicit exposure, pass-through, repricing, and timing assumptions.</div></div></div>
+        <div class="scenario-grid">
+          <div class="scenario-card">
+            <div class="assumption-tag">Scenario assumptions</div>
+            <h2>Set your inputs</h2>
+            <p class="scenario-intro">The observed balance initializes the example. Remaining defaults are editable illustration assumptions, not estimates from this dataset.</p>
+            <div class="scenario-form">
+              <div class="scenario-field"><label for="scenario-balance">Eligible consumer-credit balance <span id="scenario-balance-label">CAD millions · observed default</span></label><input id="scenario-balance" type="number" min="0" max="1000000000" step="0.01" inputmode="decimal"><div class="scenario-help">Enter the eligible share's starting balance. The engine does not add balances from other products.</div></div>
+              <div class="scenario-field"><label for="scenario-shock">Policy-rate shock <span>basis points</span></label><input id="scenario-shock" type="number" min="-10000" max="10000" step="25" list="scenario-shocks" value="100"><datalist id="scenario-shocks"><option value="25"><option value="50"><option value="100"><option value="200"></datalist></div>
+              <div class="scenario-field"><label for="scenario-exposure">Balance exposed <span>% of eligible balance</span></label><input id="scenario-exposure" type="number" min="0" max="100" step="1" value="60"></div>
+              <div class="scenario-field"><label for="scenario-pass-through">Policy-to-borrowing-rate pass-through <span>multiple</span></label><input id="scenario-pass-through" type="number" min="0" max="5" step="0.05" value="0.5"><div class="scenario-help">For example, 0.50 means a 100 bp policy shock changes the applicable borrowing rate by 50 bp.</div></div>
+              <div class="scenario-field"><label for="scenario-repriced">Exposed balance repriced by horizon <span>% of exposed balance</span></label><input id="scenario-repriced" type="number" min="0" max="100" step="1" value="50"></div>
+              <div class="scenario-field"><label for="scenario-horizon">Scenario horizon <span>whole months</span></label><select id="scenario-horizon"><option>1</option><option>3</option><option>6</option><option selected>12</option><option>24</option><option>36</option><option>60</option><option>120</option></select></div>
+              <div class="scenario-field"><label for="scenario-timing">Repricing timing assumption</label><select id="scenario-timing"><option value="uniform" selected>Uniformly through the horizon</option><option value="start">All at the start of the horizon</option></select></div>
+            </div>
+            <div id="scenario-error" class="scenario-error" role="alert" aria-live="polite"></div>
+          </div>
+          <div class="scenario-card">
+            <div class="assumption-tag">Illustrative, not a forecast</div>
+            <h2>Estimated incremental interest cost</h2>
+            <p class="scenario-intro">A positive result is added interest; a negative result is a reduction under the same static assumptions.</p>
+            <div class="scenario-results" aria-live="polite">
+              <div class="scenario-result main"><div class="scenario-result-label">Partial case · annualized at horizon</div><div id="scenario-partial-annual" class="scenario-result-value">—</div><div id="scenario-partial-annual-detail" class="scenario-result-detail">CAD per year</div></div>
+              <div class="scenario-result main"><div class="scenario-result-label">Partial case · cumulative over horizon</div><div id="scenario-partial-cumulative" class="scenario-result-value">—</div><div id="scenario-partial-cumulative-detail" class="scenario-result-detail">CAD total</div></div>
+              <div class="scenario-result"><div class="scenario-result-label">Full mechanical · annualized</div><div id="scenario-mechanical-annual" class="scenario-result-value">—</div><div class="scenario-result-detail">100% balance, 1.00x pass-through, repriced at horizon start</div></div>
+              <div class="scenario-result"><div class="scenario-result-label">Full mechanical · cumulative</div><div id="scenario-mechanical-cumulative" class="scenario-result-value">—</div><div class="scenario-result-detail">Full mechanical case carried for the entire horizon</div></div>
+            </div>
+            <p id="scenario-rate-change" class="scenario-intro"></p>
+            <h2 class="scenario-table">Shock comparison under the current assumptions</h2>
+            <div class="table-wrap"><table><thead><tr><th>POLICY SHOCK</th><th>BORROWING-RATE CHANGE</th><th>ANNUALIZED · PARTIAL</th><th>CUMULATIVE · PARTIAL</th><th>ANNUALIZED · FULL</th></tr></thead><tbody id="scenario-comparison-body"></tbody></table></div>
+            <p class="scenario-source"><strong>Observed source baseline</strong><br><span id="scenario-source-copy">Waiting for processed Bank of Canada observations.</span></p>
+            <p class="scenario-disclaimer"><strong>Formula.</strong> Rate change = policy shock × pass-through ÷ 10,000. Affected balance = eligible balance × exposure share × repriced share. Annualized run rate = affected balance × borrowing-rate change. Uniform timing accumulates at half the horizon's full run rate; start timing applies the selected repriced share from month 0. The mechanical comparator assumes full balance, one-for-one pass-through, and immediate repricing.</p>
+            <p class="scenario-disclaimer">Balances are held constant. Repayments, defaults, new borrowing, rate floors/caps, taxes, compounding, and borrower/product-level repricing schedules are not modeled. Cost over a finite horizon is an undiscounted sum, not an annual rate or forecast.</p>
+          </div>
+        </div>
+      </section>
+      <footer class="foot"><span>Public aggregate indicators only. Statistical flags are prompts for review, not risk classifications or causal claims.</span><span id="source-line">Sources: Bank of Canada · Statistics Canada</span></footer>
+    </main>
+  </div>
+<script src="interest_cost_engine.js"></script>
+<script>
+(() => {
+  const base = 'data/processed/';
+  const state = { summary: [], timeseries: [], alerts: [], validation: [], freshness: [], health: [], regimes: [], sensitivity: [], lags: [], regression: [], metadata: {}, years: 5, view: 'overview', metric: 'yoy_pct_change', scenarioBalanceEdited: false };
+  const $ = (id) => document.getElementById(id);
+  const csv = (text) => {
+    const rows = []; let row = []; let cell = ''; let quoted = false;
+    for (let i = 0; i < text.length; i++) {
+      const c = text[i];
+      if (quoted) {
+        if (c === '"' && text[i + 1] === '"') { cell += '"'; i++; }
+        else if (c === '"') quoted = false;
+        else cell += c;
+      } else if (c === '"') quoted = true;
+      else if (c === ',') { row.push(cell); cell = ''; }
+      else if (c === '\n') { row.push(cell.replace(/\r$/, '')); rows.push(row); row = []; cell = ''; }
+      else cell += c;
+    }
+    if (cell.length || row.length) { row.push(cell.replace(/\r$/, '')); rows.push(row); }
+    const headers = rows.shift() || [];
+    return rows.filter(r => r.length === headers.length).map(r => Object.fromEntries(headers.map((h, i) => [h, r[i]])));
+  };
+  const num = value => value === '' || value == null ? null : Number(value);
+  const date = value => value ? new Date(`${value.slice(0, 10)}T00:00:00`) : null;
+  const fmtDate = value => value ? new Intl.DateTimeFormat('en-CA', {year:'numeric', month:'short', day:'2-digit', timeZone:'UTC'}).format(date(value)) : '—';
+  const fmtValue = (value, unit, compact = false) => {
+    if (value == null || !Number.isFinite(Number(value))) return '—';
+    const n = Number(value);
+    if (unit === 'percent') return `${n.toFixed(2)}%`;
+    if (unit === 'ratio') return n.toFixed(2);
+    if (unit === 'millions_cad') return compact ? `CAD ${new Intl.NumberFormat('en-CA', {notation:'compact', maximumFractionDigits:1}).format(n * 1_000_000)}` : `CAD ${new Intl.NumberFormat('en-CA', {maximumFractionDigits:0}).format(n)}m`;
+    return new Intl.NumberFormat('en-CA', {maximumFractionDigits:2}).format(n);
+  };
+  const signed = (value, unit) => value == null ? '—' : `${Number(value) > 0 ? '+' : ''}${Number(value).toFixed(unit === 'percent' ? 2 : 1)}${unit === 'percent' ? ' pp' : '%'}`;
+  const safe = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const getSummary = id => state.summary.find(x => x.series_id === id);
+  const metricLabels = {value: 'Observed level', yoy_pct_change: 'Year-over-year growth', abs_change: 'Change from prior period'};
+  const metricValue = (row, metric) => {
+    const value = num(row[metric]);
+    return Number.isFinite(value) ? value : null;
+  };
+  const fmtMetric = (value, item, metric) => {
+    if (value == null) return 'Unavailable';
+    if (metric === 'value') return fmtValue(value, item.unit, true);
+    if (metric === 'yoy_pct_change') return `${Number(value).toFixed(2)}%`;
+    if (item.unit === 'percent') return `${Number(value) > 0 ? '+' : ''}${Number(value).toFixed(2)} pp`;
+    if (item.unit === 'millions_cad') return `CAD ${new Intl.NumberFormat('en-CA', {notation:'compact', maximumFractionDigits:1}).format(Number(value) * 1_000_000)}`;
+    return `${Number(value) > 0 ? '+' : ''}${Number(value).toFixed(2)} points`;
+  };
+  const labelQuestionNavigation = () => {
+    const nav = document.querySelector('.nav');
+    const buttons = [...nav.querySelectorAll('button')];
+    const overview = buttons.find(button => button.dataset.view === 'overview');
+    const scenario = buttons.find(button => button.dataset.view === 'scenario');
+    const credit = buttons.find(button => button.dataset.view === 'credit');
+    if (overview) overview.textContent = '01  What is happening?';
+    if (scenario) scenario.textContent = '03  What could happen?';
+    const changed = document.createElement('button');
+    changed.dataset.view = 'regimes';
+    changed.textContent = '02  What changed?';
+    if (overview) overview.after(changed);
+    const detailed = document.createElement('p');
+    detailed.className = 'nav-label nav-secondary';
+    detailed.textContent = 'Detailed views';
+    if (credit) credit.before(detailed);
+    if (scenario && detailed.parentNode) detailed.before(scenario);
+  };
+  const installQuestionViews = () => {
+    const notice = $('freshness-notice');
+    notice.querySelector('strong').textContent = 'Source quality and freshness.';
+    notice.insertAdjacentHTML('afterend', `<section id="overview-context" class="question-intro"><div class="question-copy"><strong>Canadian household borrowing in context.</strong> Bank of Canada rates and chartered-bank credit balances are paired with Statistics Canada household debt measures. Review published observations first, compare descriptive credit-growth patterns across rate regimes, then explore an editable mechanical interest-cost scenario. These aggregate patterns do not identify causal effects. <p class="method-note"><a href="methodology.md" target="_blank" rel="noopener">Metric definitions and methodology</a> · <a href="research_memo.md" target="_blank" rel="noopener">Research memo and limitations</a></p></div><aside class="coverage-card" aria-label="Data coverage and source health"><h2>Coverage and source health</h2><div id="coverage-content"><div class="empty">Loading verified data coverage…</div></div></aside></section>`);
+    $('kpis-section').innerHTML = `<article class="kpi"><div class="kpi-label">Policy rate <span>01</span></div><div class="kpi-value" id="kpi-policy">—</div><div class="kpi-detail" id="kpi-policy-detail">Bank of Canada · daily</div></article><article class="kpi"><div class="kpi-label">Prime lending rate <span>02</span></div><div class="kpi-value" id="kpi-prime">—</div><div class="kpi-detail" id="kpi-prime-detail">Bank of Canada · weekly</div></article><article class="kpi"><div class="kpi-label">Effective consumer-credit rate <span>03</span></div><div class="kpi-value" id="kpi-effective">—</div><div class="kpi-detail" id="kpi-effective-detail">Bank of Canada · monthly</div></article><article class="kpi"><div class="kpi-label">Consumer-credit growth <span>04</span></div><div class="kpi-value" id="kpi-growth">—</div><div class="kpi-detail" id="kpi-growth-detail">Year over year · monthly</div></article><article class="kpi"><div class="kpi-label">Consumer-credit balance <span>05</span></div><div class="kpi-value" id="kpi-balance">—</div><div class="kpi-detail" id="kpi-balance-detail">Chartered banks · CAD</div></article><article class="kpi"><div class="kpi-label">Household debt-to-income <span>06</span></div><div class="kpi-value" id="kpi-dti">—</div><div class="kpi-detail" id="kpi-dti-detail">Statistics Canada · quarterly</div></article>`;
+    const controls = document.querySelector('#chart-section .controls');
+    controls.insertAdjacentHTML('afterbegin', `<label class="control-label" for="metric-select">MEASURE</label><select id="metric-select" aria-label="Select chart measure"><option value="yoy_pct_change">Year-over-year growth</option><option value="abs_change">Change from prior period</option><option value="value">Observed level</option></select>`);
+    const chart = $('chart-section');
+    chart.insertAdjacentHTML('afterend', `<section id="regime-section" class="regime-section hidden-view" aria-labelledby="regime-title"><div class="section-head"><div><div class="eyebrow">Observed association · not causal</div><h2 id="regime-title">Consumer-credit growth across policy regimes</h2><div class="section-note">Chartered-bank consumer-credit year-over-year growth, classified using the policy rate’s trailing 12-month change.</div></div></div><div id="regime-summary" class="regime-summary"><div class="empty">Loading verified regime results…</div></div><div class="research-grid"><section class="research-panel"><h2>Baseline comparison</h2><div class="section-note">Mean estimates with Newey–West HAC(12) confidence intervals. Block-bootstrap intervals are also reported because monthly outcomes are serially dependent.</div><div class="table-wrap"><table class="regime-table"><thead><tr><th>REGIME</th><th>N</th><th>SAMPLE PERIOD</th><th>MEAN</th><th>MEDIAN</th><th>SAMPLE SD</th><th>HAC(12) 95% CI</th><th>12-MONTH BLOCK 95% CI</th></tr></thead><tbody id="regime-body"><tr><td colspan="8" class="empty">No regime results available.</td></tr></tbody></table></div><p class="method-note">Intervals describe uncertainty in regime means under the stated methods; they are not causal effects. Independent-observation intervals are omitted here because the outcome is serially dependent. <a href="../../documentation/methodology.md" target="_blank" rel="noopener">Methodology</a> · <a href="../../reports/research_memo.md" target="_blank" rel="noopener">Research memo</a></p></section><section class="research-panel"><h2>Specification sensitivity</h2><div class="section-note">Compare reasonable thresholds, timing labels, and sample windows. The baseline point estimates are retained alongside each alternative.</div><label class="control-label" for="regime-spec-select">ALTERNATIVE SPECIFICATION</label><select id="regime-spec-select" aria-label="Select regime sensitivity specification"><option value="threshold_50bp">Threshold ±50 bp</option><option value="threshold_10bp">Threshold ±10 bp</option><option value="prior_month_label">Prior-month regime label</option><option value="post_2020">Post-2020 window</option><option value="pre_pandemic">Pre-pandemic window</option></select><div class="table-wrap" style="margin-top:12px"><table><thead><tr><th>REGIME</th><th>N</th><th>PERIOD</th><th>MEAN</th><th>HAC(12) 95% CI</th></tr></thead><tbody id="sensitivity-body"><tr><td colspan="5" class="empty">No sensitivity results available.</td></tr></tbody></table></div><p id="sensitivity-note" class="method-note"></p></section></div><div class="research-grid"><section class="research-panel"><h2>Policy-change timing</h2><div class="section-note">Correlation between the policy rate’s trailing 12-month change at month t and credit growth at t+k. Descriptive timing only.</div><div class="table-wrap"><table><thead><tr><th>LAG</th><th>OBSERVATIONS</th><th>POLICY MONTHS</th><th>CORRELATION</th></tr></thead><tbody id="lag-body"><tr><td colspan="4" class="empty">No lag results available.</td></tr></tbody></table></div></section><section class="research-panel"><h2>Dynamic regression context</h2><div class="section-note" id="regression-specification">No adjusted model available.</div><div class="table-wrap"><table><thead><tr><th>TERM</th><th>ESTIMATE</th><th>HAC(12) 95% CI</th></tr></thead><tbody id="regression-body"><tr><td colspan="3" class="empty">No regression results available.</td></tr></tbody></table></div><p class="method-note">This short-sample OLS model uses lagged growth and a linear trend; configured monthly unemployment, inflation, and income controls are unavailable. It is a sensitivity analysis, not a causal model.</p></section></div></section>`);
+    $('regime-summary').insertAdjacentHTML('afterend', `<section class="research-panel"><h2>Mean growth with 12-month block-bootstrap uncertainty</h2><div class="section-note">Point estimates and 95% intervals, on a common YoY percentage scale.</div><div id="regime-plot" aria-live="polite"></div><div class="coverage-line">● Mean &nbsp; ━ 12-month block-bootstrap 95% interval · x-axis: consumer-credit growth (% YoY)</div></section>`);
+  };
+  labelQuestionNavigation();
+  installQuestionViews();
+  $('regime-section').querySelector('.section-head .section-note').textContent = 'Outcome: monthly chartered-bank consumer-credit YoY growth. Baseline label: same completed month as the average daily policy rate; trailing 12-month rate change ≥ +0.25 pp is hiking, ≤ −0.25 pp is easing, otherwise stable.';
+  $('regime-section').querySelectorAll('.method-note a')[0].href = 'methodology.md';
+  $('regime-section').querySelectorAll('.method-note a')[1].href = 'research_memo.md';
+  const filteredSummary = () => state.summary.filter(s => {
+    if (state.view === 'credit') return s.category.toLowerCase().includes('credit');
+    if (state.view === 'rates') return s.measure_type === 'rate';
+    return true;
+  });
+  const makeOptions = () => {
+    const select = $('series-select'); const previous = select.value;
+    const items = filteredSummary().slice().sort((a,b) => a.series_name.localeCompare(b.series_name));
+    select.innerHTML = items.map(s => `<option value="${safe(s.series_id)}">${safe(s.series_name)}</option>`).join('');
+    if (items.some(s => s.series_id === previous)) select.value = previous;
+    else if (items.length) {
+      const preferred = state.view === 'rates' ? items.find(s => s.series_id === 'V39079') : items.find(s => s.series_id === 'V122667758') || items.find(s => s.series_id === 'V122667761');
+      select.value = (preferred || items[0]).series_id;
+    }
+    state.metric = state.view === 'rates' ? 'value' : 'yoy_pct_change';
+    $('metric-select').value = state.metric;
+    drawChart();
+  };
+  const drawChart = () => {
+    const canvas = $('history-chart'); const ctx = canvas.getContext('2d');
+    const rect = canvas.getBoundingClientRect(); if (!rect.width) return;
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = Math.round(rect.width * dpr); canvas.height = Math.round(rect.height * dpr);
+    ctx.scale(dpr, dpr);
+    const w = rect.width, h = rect.height;
+    const id = $('series-select').value;
+    const item = getSummary(id);
+    const metric = $('metric-select').value;
+    document.querySelector('.chart-legend').innerHTML = `<i class="legend-line"></i>${safe(metricLabels[metric])}`;
+    let points = state.timeseries.filter(r => r.series_id === id && metricValue(r, metric) !== null).map(r => ({...r, chart_value: metricValue(r, metric)}));
+    if (!item) {
+      ctx.fillStyle = '#748078'; ctx.font = '12px DM Sans, sans-serif'; ctx.textAlign = 'center'; ctx.fillText('No indicator data available', w / 2, h / 2);
+      $('chart-current').textContent = '—';
+      $('chart-caption').textContent = 'No indicator data available';
+      $('chart-note').textContent = 'No series available in the selected data bundle.';
+      return;
+    }
+    if (state.years && points.length) {
+      const cutoff = new Date(); cutoff.setFullYear(cutoff.getFullYear() - state.years);
+      points = points.filter(p => date(p.observation_date) >= cutoff);
+    }
+    if (!points.length) {
+      ctx.fillStyle = '#748078'; ctx.font = '12px DM Sans, sans-serif'; ctx.textAlign = 'center'; ctx.fillText(`${metricLabels[metric]} unavailable for this series and period`, w / 2, h / 2); $('chart-current').textContent = 'Unavailable'; $('chart-caption').textContent = `No ${metricLabels[metric].toLowerCase()} observations`; $('chart-note').textContent = 'The source does not provide this measure for the selected series.'; return;
+    }
+    const values = points.map(p => Number(p.chart_value));
+    let min = Math.min(0, ...values), max = Math.max(0, ...values);
+    const pad = (max - min || Math.abs(max) * .08 || 1) * .08; min -= pad; max += pad;
+    const left = 52, right = 12, top = 14, bottom = 30;
+    const firstTime = date(points[0].observation_date).getTime(), lastTime = date(points[points.length - 1].observation_date).getTime();
+    const x = i => left + (lastTime === firstTime ? .5 : (date(points[i].observation_date).getTime() - firstTime) / (lastTime - firstTime)) * (w - left - right);
+    const y = v => top + (max - v) / (max - min) * (h - top - bottom);
+    ctx.font = '10px DM Mono, monospace'; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    for (let i = 0; i < 4; i++) {
+      const val = min + (max - min) * i / 3, yy = y(val);
+      ctx.strokeStyle = '#edf0eb'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(left, yy); ctx.lineTo(w - right, yy); ctx.stroke();
+      ctx.fillStyle = '#87918a'; ctx.fillText(metric === 'value' ? (item.unit === 'percent' ? `${val.toFixed(1)}%` : item.unit === 'ratio' ? val.toFixed(0) : new Intl.NumberFormat('en-CA', {notation:'compact', maximumFractionDigits:0}).format(val)) : metric === 'yoy_pct_change' ? `${val.toFixed(1)}%` : item.unit === 'percent' ? `${val.toFixed(1)} pp` : val.toFixed(0), left - 9, yy);
+    }
+    ctx.strokeStyle = '#cbd3cc'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(left, y(0)); ctx.lineTo(w - right, y(0)); ctx.stroke();
+    const maxGapDays = {daily: 4, weekly: 14, monthly: 45, quarterly: 135}[item.frequency] || Infinity;
+    ctx.beginPath();
+    points.forEach((p, i) => {
+      const gapDays = i ? (date(p.observation_date) - date(points[i - 1].observation_date)) / 86400000 : 0;
+      if (!i || gapDays > maxGapDays) ctx.moveTo(x(i), y(Number(p.chart_value)));
+      else ctx.lineTo(x(i), y(Number(p.chart_value)));
+    });
+    ctx.strokeStyle = '#28654d'; ctx.lineWidth = 2; ctx.lineJoin = 'round'; ctx.stroke();
+    [0, Math.floor((points.length - 1) / 2), points.length - 1].forEach(i => {
+      const d = points[i].observation_date;
+      ctx.fillStyle = '#87918a'; ctx.textAlign = i === 0 ? 'left' : i === points.length - 1 ? 'right' : 'center'; ctx.textBaseline = 'alphabetic';
+      ctx.fillText(d.slice(0, 7), x(i), h - 7);
+    });
+    $('chart-current').textContent = fmtMetric(points[points.length - 1].chart_value, item, metric);
+    $('chart-caption').textContent = `${item.series_name} · ${item.frequency} · ${fmtDate(item.latest_date)} · ${item.unit === 'millions_cad' ? 'CAD millions' : item.unit}`;
+    const periodsPerYear = {monthly: 12, quarterly: 4}[item.frequency];
+    const firstDate = date(points[0].observation_date), lastDate = date(points[points.length - 1].observation_date);
+    const rangeMonths = (lastDate.getFullYear() - firstDate.getFullYear()) * 12 + lastDate.getMonth() - firstDate.getMonth();
+    const calendarPeriods = periodsPerYear === 12 ? rangeMonths + 1 : periodsPerYear === 4 ? Math.floor(rangeMonths / 3) + 1 : null;
+    const expected = calendarPeriods;
+    const coverage = expected == null ? `${points.length.toLocaleString()} available observations` : `${points.length.toLocaleString()} of ${expected} expected observations; ${Math.max(0, expected - points.length)} missing or unavailable`;
+    $('chart-note').textContent = `${metricLabels[metric]} · ${fmtDate(points[0].observation_date)} to ${fmtDate(points[points.length - 1].observation_date)} · ${coverage}`;
+    $('chart-caption').textContent = `${item.series_name} · ${metricLabels[metric]} · ${item.frequency} · latest point ${fmtDate(points[points.length - 1].observation_date)}`;
+  };
+  const renderKpis = () => {
+    const policy = getSummary('V39079'), prime = getSummary('V80691311'), effective = getSummary('V122667809');
+    const balance = getSummary('V122667758'), dti = getSummary('STATCAN_v1038036698');
+    if (policy) { $('kpi-policy').textContent = fmtValue(policy.current_value, policy.unit); $('kpi-policy-detail').textContent = `BoC · ${fmtDate(policy.latest_date)} · business-day`; }
+    if (prime) { $('kpi-prime').textContent = fmtValue(prime.current_value, prime.unit); $('kpi-prime-detail').textContent = `BoC · ${fmtDate(prime.latest_date)} · weekly posted rate`; }
+    if (effective) { $('kpi-effective').textContent = fmtValue(effective.current_value, effective.unit); $('kpi-effective-detail').textContent = `BoC · ${fmtDate(effective.latest_date)} · monthly average`; }
+    if (balance) {
+      $('kpi-balance').textContent = fmtValue(balance.current_value, balance.unit, true);
+      $('kpi-balance-detail').textContent = `CAD · observed ${fmtDate(balance.latest_date)}`;
+      $('kpi-growth').textContent = balance.yoy_pct_change == null ? 'Unavailable' : `${Number(balance.yoy_pct_change).toFixed(2)}%`;
+      $('kpi-growth-detail').textContent = `Year over year · ${fmtDate(balance.latest_date)}`;
+    }
+    if (dti) { $('kpi-dti').textContent = `${Number(dti.current_value).toFixed(1)}%`; $('kpi-dti-detail').textContent = `StatCan · ${fmtDate(dti.latest_date)} · debt / disposable income`; }
+    const latest = state.summary.map(s => s.latest_date).sort().at(-1);
+    $('latest-date').textContent = fmtDate(latest);
+    const transformed = state.metadata.transformed_utc ? new Date(state.metadata.transformed_utc) : null;
+    $('refresh-date').textContent = transformed ? `Processed ${new Intl.DateTimeFormat('en-CA', {dateStyle:'medium', timeZone:'UTC'}).format(transformed)}` : '';
+  };
+  const renderCoverage = () => {
+    const content = $('coverage-content');
+    if (!state.health.length) { content.innerHTML = '<div class="empty">Source coverage unavailable.</div>'; return; }
+    content.innerHTML = state.health.map(source => `<div class="coverage-row"><span>${safe(source.source.replaceAll('_',' '))} · ${safe(source.series_count)} series</span><span><span class="source-status ${safe(String(source.health_status).toLowerCase())}">${safe(source.health_status)}</span><br>${safe(source.latest_observation_date || 'No selected snapshot')}<br>retrieved ${safe(source.retrieval_timestamp_utc ? fmtDate(source.retrieval_timestamp_utc.slice(0,10)) : 'unknown')}</span></div>`).join('');
+  };
+  const ci = (low, high) => num(low) == null || num(high) == null ? 'Unavailable' : `${Number(low).toFixed(2)}% to ${Number(high).toFixed(2)}%`;
+  const renderRegimes = () => {
+    if (!state.regimes.length) {
+      $('regime-summary').innerHTML = '<div class="empty">Verified regime results are unavailable in this data bundle.</div>';
+      $('regime-body').innerHTML = '<tr><td colspan="8" class="empty">No regime results available.</td></tr>';
+      $('sensitivity-body').innerHTML = '<tr><td colspan="5" class="empty">No sensitivity results available.</td></tr>';
+      return;
+    }
+    const order = ['hiking','stable','easing'];
+    const baseline = order.map(regime => state.regimes.find(row => row.regime === regime)).filter(Boolean);
+    $('regime-summary').innerHTML = baseline.map(row => `<article class="regime-card"><div class="regime-card-label">${safe(row.regime)} · baseline</div><div class="regime-card-value">${Number(row.mean_pct).toFixed(2)}%</div><div class="regime-card-detail">Mean YoY credit growth · N=${safe(row.n)} · HAC(12) 95% CI ${safe(ci(row.hac12_ci95_low,row.hac12_ci95_high))}</div></article>`).join('');
+    const plotRows = baseline.map((row, index) => {
+      const y = 42 + index * 44;
+      const scale = value => 56 + (Math.max(-2, Math.min(10, Number(value)) + 2) / 12) * 500;
+      return `<text x="4" y="${y + 4}" font-size="12" fill="#4f5d54">${safe(row.regime)}</text><line x1="${scale(row.block12_ci95_low)}" y1="${y}" x2="${scale(row.block12_ci95_high)}" y2="${y}" stroke="#86a091" stroke-width="5" stroke-linecap="round"><title>Block-bootstrap 95% interval ${Number(row.block12_ci95_low).toFixed(2)}% to ${Number(row.block12_ci95_high).toFixed(2)}%</title></line><circle cx="${scale(row.mean_pct)}" cy="${y}" r="5" fill="#28654d"><title>Mean ${Number(row.mean_pct).toFixed(2)}%</title></circle>`;
+    }).join('');
+    const ticks = [-2,0,2,4,6,8,10].map(value => {
+      const x = 56 + ((value + 2) / 12) * 500;
+      return `<line x1="${x}" y1="18" x2="${x}" y2="158" stroke="${value === 0 ? '#b7c1b9' : '#edf0eb'}" stroke-dasharray="${value === 0 ? '4 3' : 'none'}"/><text x="${x}" y="177" text-anchor="middle" font-size="10" fill="#748078">${value}%</text>`;
+    }).join('');
+    $('regime-plot').innerHTML = `<svg class="regime-plot" viewBox="0 0 570 188" role="img" aria-label="Regime means and 12-month block-bootstrap confidence intervals for consumer-credit growth">${ticks}${plotRows}</svg>`;
+    $('regime-body').innerHTML = baseline.map(row => `<tr><td class="regime-name">${safe(row.regime)}</td><td>${safe(row.n)}</td><td>${safe(row.date_min)} to ${safe(row.date_max)}</td><td>${Number(row.mean_pct).toFixed(2)}%</td><td>${Number(row.median_pct).toFixed(2)}%</td><td>${Number(row.sd_pct).toFixed(2)} pp</td><td>${safe(ci(row.hac12_ci95_low,row.hac12_ci95_high))}</td><td>${safe(ci(row.block12_ci95_low,row.block12_ci95_high))}</td></tr>`).join('');
+    renderSensitivity();
+    const selectedLags = state.lags.filter(row => [0,3,12].includes(Number(row.lag_months)));
+    $('lag-body').innerHTML = selectedLags.map(row => `<tr><td>t + ${safe(row.lag_months)} months</td><td>${safe(row.n)}</td><td>${safe(row.date_min)} to ${safe(row.date_max)}</td><td>${num(row.correlation) == null ? 'Unavailable' : Number(row.correlation).toFixed(3)}</td></tr>`).join('') || '<tr><td colspan="4" class="empty">No lag estimates available.</td></tr>';
+    const coefficients = state.regression.filter(row => /^policy_lag[0-3]$/.test(row.term));
+    $('regression-specification').textContent = state.regression[0]?.specification ? `${state.regression[0].specification} · N=${state.regression[0].n} · ${state.regression[0].date_min} to ${state.regression[0].date_max}` : 'No adjusted model available.';
+    $('regression-body').innerHTML = coefficients.map(row => `<tr><td>${safe(row.term.replace('policy_lag','Policy change at t−'))}</td><td>${Number(row.estimate).toFixed(2)}</td><td>${Number(row.ci95_low).toFixed(2)} to ${Number(row.ci95_high).toFixed(2)}</td></tr>`).join('') || '<tr><td colspan="3" class="empty">No model coefficients available.</td></tr>';
+  };
+  const renderSensitivity = () => {
+    const spec = $('regime-spec-select').value;
+    const rows = state.sensitivity.filter(row => row.specification === spec).sort((a,b) => ['hiking','stable','easing'].indexOf(a.regime)-['hiking','stable','easing'].indexOf(b.regime));
+    $('sensitivity-body').innerHTML = rows.map(row => `<tr><td class="regime-name">${safe(row.regime)}</td><td>${safe(row.n)}</td><td>${row.date_min && row.date_max ? `${safe(row.date_min)} to ${safe(row.date_max)}` : 'No observations'}</td><td>${num(row.mean_pct) == null ? 'Unavailable' : `${Number(row.mean_pct).toFixed(2)}%`}</td><td>${safe(ci(row.hac12_ci95_low,row.hac12_ci95_high))}</td></tr>`).join('') || '<tr><td colspan="5" class="empty">No sensitivity results for this specification.</td></tr>';
+    const notes = {threshold_50bp:'Hiking/easing require a trailing 12-month policy-rate move of at least ±0.50 percentage points.',threshold_10bp:'Hiking/easing require a trailing 12-month policy-rate move of at least ±0.10 percentage points.',prior_month_label:'Uses the completed prior-month policy regime to label current-month credit growth.',post_2020:'Restricts the baseline regime rule to January 2020 onward.',pre_pandemic:'Uses observations through February 2020; the available sample has no easing observations.'};
+    $('sensitivity-note').textContent = `${notes[spec]} These are alternate descriptive specifications; changes in estimates are part of the result.`;
+  };
+  const renderMovements = () => {
+    const rows = filteredSummary().slice().filter(r => num(r.abs_change) !== null).sort((a,b) => Math.abs(Number(b.abs_change)) - Math.abs(Number(a.abs_change))).slice(0, 6);
+    $('changes-body').innerHTML = rows.length ? rows.map(r => `<tr><td class="name-cell">${safe(r.series_name)}</td><td class="mono">${safe(fmtValue(r.current_value,r.unit,true))}</td><td class="mono ${Number(r.abs_change)>0?'delta-up':'delta-down'}">${safe(signed(r.pct_change,'ratio'))}</td><td class="mono">${r.yoy_pct_change ? safe(`${Number(r.yoy_pct_change)>0?'+':''}${Number(r.yoy_pct_change).toFixed(2)}%`) : '—'}</td><td class="mono">${safe(fmtDate(r.latest_date))}</td></tr>`).join('') : '<tr><td colspan="5" class="empty">No period changes available.</td></tr>';
+  };
+  const renderAlerts = () => {
+    const active = state.alerts.filter(a => a.is_alert === 'True' || a.is_alert === 'true').sort((a,b) => (a.severity === 'HIGH' ? 0 : 1) - (b.severity === 'HIGH' ? 0 : 1)).slice(0, 7);
+    $('alert-count-label').textContent = `${state.alerts.filter(a => a.is_alert === 'True' || a.is_alert === 'true').length} CURRENT FLAGS`;
+    $('alerts-body').innerHTML = active.length ? active.map(a => {
+      const label = a.severity === 'NORMAL' ? (a.tail_flag === 'True' || a.tail_flag === 'true' ? 'TAIL' : 'MOVE') : a.severity;
+      const tone = label === 'TAIL' || label === 'MOVE' ? 'medium' : label.toLowerCase();
+      return `<tr><td class="name-cell">${safe(a.series_name)}</td><td><span class="pill ${tone}">${safe(label)}</span></td><td class="alert-reason">${safe(a.reason)}<br><span class="mono">${safe(fmtDate(a.observation_date))}</span></td></tr>`;
+    }).join('') : '<tr><td colspan="3" class="empty">No active flags in the latest observations.</td></tr>';
+  };
+  const renderFreshness = () => {
+    const warnings = state.validation.filter(v => v.status === 'WARN' || v.status === 'FAIL');
+    const stale = warnings.filter(v => v.rule.toLowerCase().includes('stale'));
+    const unhealthy = state.health.filter(source => source.health_status && source.health_status !== 'CURRENT');
+    if (warnings.length || unhealthy.length) {
+      $('freshness-notice').hidden = false;
+      const failed = unhealthy.filter(source => source.health_status === 'FAILED');
+      const partial = unhealthy.filter(source => source.health_status === 'PARTIAL');
+      const staleSources = unhealthy.filter(source => source.health_status === 'STALE');
+      const messages = [];
+      if (failed.length) messages.push(`Failed refresh: ${failed.map(x => x.source.replaceAll('_',' ')).join(', ')}`);
+      if (partial.length) messages.push(`Partial or quality warning: ${partial.map(x => x.source.replaceAll('_',' ')).join(', ')}`);
+      if (stale.length || staleSources.length) messages.push(stale.length ? `${stale.map(x => `${x.records_affected} ${x.source.replaceAll('_',' ')} series overdue`).join('; ')}` : `Stale source: ${staleSources.map(x => x.source.replaceAll('_',' ')).join(', ')}`);
+      if (!messages.length) messages.push(`${warnings.length} validation warning(s) need review.`);
+      $('freshness-copy').textContent = `${messages.join('. ')}. Observation dates and source refresh times are shown separately.`;
+    }
+  };
+  const fmtScenarioCost = millions => `CAD ${new Intl.NumberFormat('en-CA', {
+    notation: 'compact', maximumFractionDigits: 2
+  }).format(Number(millions) * 1_000_000)}`;
+  const scenarioNumber = id => $(id).value.trim() === '' ? NaN : Number($(id).value);
+  const scenarioInputs = shockOverride => ({
+    eligible_balance_millions_cad: scenarioNumber('scenario-balance'),
+    policy_shock_bp: shockOverride ?? scenarioNumber('scenario-shock'),
+    exposure_share: scenarioNumber('scenario-exposure') / 100,
+    pass_through: scenarioNumber('scenario-pass-through'),
+    repriced_share: scenarioNumber('scenario-repriced') / 100,
+    horizon_months: scenarioNumber('scenario-horizon'),
+    timing: $('scenario-timing').value
+  });
+  const renderScenario = () => {
+    const balance = getSummary('V122667758');
+    const effectiveRate = getSummary('V122667809');
+    if (balance && !$('scenario-balance').value && !state.scenarioBalanceEdited) $('scenario-balance').value = balance.current_value;
+    const freshBalance = state.freshness.find(x => x.series_id === 'V122667758');
+    const freshRate = state.freshness.find(x => x.series_id === 'V122667809');
+    const status = freshBalance?.freshness_status || 'not available';
+    const retrieval = freshBalance?.retrieval_timestamp_utc || 'not recorded';
+    const expected = freshBalance?.expected_next_publication_date || 'not recorded';
+    const deadline = freshBalance?.overdue_after_date || 'not recorded';
+    $('scenario-balance-label').textContent = state.scenarioBalanceEdited || !balance
+      ? 'CAD millions · user-defined' : 'CAD millions · observed default';
+    $('scenario-source-copy').textContent = balance
+      ? `Observed Bank of Canada chartered-bank consumer-credit balance: CAD ${Number(balance.current_value).toLocaleString('en-CA')} million, observation ${fmtDate(balance.latest_date)} (series V122667758). ${state.scenarioBalanceEdited ? 'The balance field has been edited and is now a user-defined scenario input; the source value below is for reference.' : 'This observed value currently initializes the scenario balance field.'} Paired effective consumer-credit rate: ${effectiveRate ? `${Number(effectiveRate.current_value).toFixed(2)}% on ${fmtDate(effectiveRate.latest_date)} (V122667809)` : 'unavailable'}. Latest processed source retrieval: ${retrieval}; validation freshness: balance ${status}, rate ${freshRate?.freshness_status || 'not available'}. Configured next publication estimate for balance: ${expected}, overdue after ${deadline}. Freshness is reported as of that stored validation; observation dates remain the source reference dates.`
+      : 'Observed balance unavailable. Enter an explicitly user-defined balance to calculate a scenario.';
+    $('scenario-source-copy').dataset.balanceSource = balance ? 'observed' : 'missing';
+
+    try {
+      const input = scenarioInputs();
+      const result = window.InterestCostEngine.calculate(input);
+      $('scenario-error').textContent = '';
+      $('scenario-partial-annual').textContent = fmtScenarioCost(result.partial_annualized_millions_cad);
+      $('scenario-partial-cumulative').textContent = fmtScenarioCost(result.partial_cumulative_millions_cad);
+      $('scenario-mechanical-annual').textContent = fmtScenarioCost(result.mechanical_annualized_millions_cad);
+      $('scenario-mechanical-cumulative').textContent = fmtScenarioCost(result.mechanical_cumulative_millions_cad);
+      $('scenario-partial-annual-detail').textContent = `CAD ${result.partial_annualized_millions_cad.toFixed(2)} million per year at horizon end`;
+      $('scenario-partial-cumulative-detail').textContent = `CAD ${result.partial_cumulative_millions_cad.toFixed(2)} million over ${input.horizon_months} months`;
+      $('scenario-rate-change').textContent = `Assumed borrowing-rate change: ${result.borrowing_rate_change_bp.toFixed(1)} bps (${(result.borrowing_rate_change_bp / 100).toFixed(3)} percentage points). Balance counted: CAD ${result.partial_balance_millions_cad.toLocaleString('en-CA', {maximumFractionDigits:2})} million.`;
+      $('scenario-comparison-body').innerHTML = [25, 50, 100, 200].map(shock => {
+        const row = window.InterestCostEngine.calculate(scenarioInputs(shock));
+        return `<tr><td class="mono">+${shock} bp</td><td class="mono">${(row.borrowing_rate_change_bp / 100).toFixed(2)} pp</td><td class="mono">${safe(fmtScenarioCost(row.partial_annualized_millions_cad))}</td><td class="mono">${safe(fmtScenarioCost(row.partial_cumulative_millions_cad))}</td><td class="mono">${safe(fmtScenarioCost(row.mechanical_annualized_millions_cad))}</td></tr>`;
+      }).join('');
+    } catch (error) {
+      $('scenario-error').textContent = error.message;
+      ['scenario-partial-annual','scenario-partial-cumulative','scenario-mechanical-annual','scenario-mechanical-cumulative'].forEach(id => $(id).textContent = 'Unavailable');
+      $('scenario-partial-annual-detail').textContent = 'Correct the scenario inputs to calculate.';
+      $('scenario-partial-cumulative-detail').textContent = 'Correct the scenario inputs to calculate.';
+      $('scenario-rate-change').textContent = '';
+      $('scenario-comparison-body').innerHTML = '<tr><td colspan="5" class="empty">Comparison unavailable until inputs are valid.</td></tr>';
+    }
+  };
+  const setView = view => {
+    state.view = view;
+    document.querySelectorAll('.nav button').forEach(b => b.classList.toggle('active', b.dataset.view === view));
+    const copy = {
+      overview: ['What is happening?', 'Observed policy rates, lending rates, and consumer-credit growth.'],
+      regimes: ['What changed?', 'How consumer-credit growth differed across hiking, easing, and stable regimes.'],
+      credit: ['Credit indicators', 'Household and business credit measures from published sources.'],
+      rates: ['Rate environment', 'Policy, posted, and effective lending rates.'],
+      monitoring: ['Monitoring', 'Statistical flags for analyst review, not risk classifications.'],
+      scenario: ['What could happen?', 'Change the rate shock and repricing assumptions to see annualized cost sensitivity.']
+    }[view];
+    $('page-title').textContent = copy[0]; $('page-subtitle').textContent = copy[1];
+    const scenario = view === 'scenario';
+    const regimes = view === 'regimes';
+    $('overview-context').classList.toggle('hidden-view', view !== 'overview');
+    $('kpis-section').classList.toggle('hidden-view', scenario || regimes);
+    $('chart-section').classList.toggle('hidden-view', view === 'monitoring' || scenario || regimes);
+    $('changes-section').classList.toggle('hidden-view', view === 'monitoring' || scenario || regimes);
+    $('alerts-section').classList.toggle('hidden-view', view === 'rates' || scenario || regimes);
+    $('regime-section').classList.toggle('hidden-view', !regimes);
+    $('scenario-section').classList.toggle('hidden-view', !scenario);
+    makeOptions(); renderMovements();
+  };
+  const load = async () => {
+    try {
+      const files = await Promise.all(['metrics_summary.csv','metrics_timeseries.csv','monitoring_alerts.csv','validation_results.csv','pipeline_metadata.json','series_freshness.csv','source_health.csv','credit_regime_uncertainty.csv','credit_regime_sensitivity.csv','credit_lagged_correlations.csv','credit_hac_regression.csv'].map(async name => {
+        const response = await fetch(base + name, {cache:'no-store'});
+        if (!response.ok) throw new Error(`${name}: HTTP ${response.status}`);
+        return name.endsWith('.json') ? response.json() : csv(await response.text());
+      }));
+      [state.summary,state.timeseries,state.alerts,state.validation,state.metadata,state.freshness,state.health,state.regimes,state.sensitivity,state.lags,state.regression] = files;
+      renderKpis(); renderCoverage();
+      $('coverage-content').insertAdjacentHTML('afterbegin', `<div class="coverage-row"><span>Combined observed span<br>${safe(state.metadata.date_min)} to ${safe(state.metadata.date_max)} · ${state.health.reduce((sum,row) => sum + Number(row.series_count || 0),0)} series · ${state.health.reduce((sum,row) => sum + Number(row.observations || 0),0).toLocaleString()} observations</span><span>Processed<br>${safe(state.metadata.transformed_utc ? state.metadata.transformed_utc.replace('T',' ').slice(0,19) + ' UTC' : 'unknown')}</span></div>`);
+      renderFreshness(); renderAlerts(); renderScenario(); renderRegimes(); makeOptions(); renderMovements();
+    } catch (error) {
+      $('load-error').hidden = false;
+      $('load-error').innerHTML = `<strong>Dashboard data could not be loaded.</strong> ${safe(error.message)}<br>Build the static site with <code>python -m python.reporting.prepare_dashboard</code>, then serve <code>frontend/site</code> with <code>python -m http.server 8000 --directory frontend/site</code>.`;
+      $('latest-date').textContent = 'Unavailable';
+    }
+  };
+  document.querySelectorAll('.nav button').forEach(b => b.addEventListener('click', () => setView(b.dataset.view)));
+  document.querySelectorAll('.range button').forEach(b => b.addEventListener('click', () => {
+    state.years = Number(b.dataset.years); document.querySelectorAll('.range button').forEach(x => x.classList.toggle('active', x === b)); drawChart();
+  }));
+  $('series-select').addEventListener('change', drawChart);
+  $('metric-select').addEventListener('change', drawChart);
+  $('regime-spec-select').addEventListener('change', renderSensitivity);
+  ['scenario-shock','scenario-exposure','scenario-pass-through','scenario-repriced','scenario-horizon','scenario-timing'].forEach(id => $(id).addEventListener('input', renderScenario));
+  ['scenario-horizon','scenario-timing'].forEach(id => $(id).addEventListener('change', renderScenario));
+  $('scenario-balance').addEventListener('input', () => { state.scenarioBalanceEdited = true; renderScenario(); });
+  window.addEventListener('resize', drawChart);
+  setView('overview');
+  load();
+})();
+</script>
+</body>
+</html>

@@ -3,16 +3,10 @@
 -- =============================================================================
 SET search_path TO credit, public;
 
--- Idempotent rebuild: drop in FK-safe order.
-DROP TABLE IF EXISTS credit.fact_observations CASCADE;
-DROP TABLE IF EXISTS credit.dim_series      CASCADE;
-DROP TABLE IF EXISTS credit.dim_date        CASCADE;
-DROP TABLE IF EXISTS credit.dim_source      CASCADE;
-
 -- -----------------------------------------------------------------------------
 -- dim_source : one row per data source
 -- -----------------------------------------------------------------------------
-CREATE TABLE credit.dim_source (
+CREATE TABLE IF NOT EXISTS credit.dim_source (
     source_key   TEXT PRIMARY KEY,               -- e.g. 'bank_of_canada'
     source_name  TEXT NOT NULL,                  -- e.g. 'Bank of Canada'
     service      TEXT NOT NULL,                  -- e.g. 'Valet API'
@@ -24,7 +18,7 @@ COMMENT ON TABLE credit.dim_source IS 'Data source dimension.';
 -- -----------------------------------------------------------------------------
 -- dim_series : one row per financial series (the series dimension)
 -- -----------------------------------------------------------------------------
-CREATE TABLE credit.dim_series (
+CREATE TABLE IF NOT EXISTS credit.dim_series (
     series_key    INTEGER PRIMARY KEY,           -- surrogate key
     series_id     TEXT NOT NULL UNIQUE,          -- natural key (Valet/StatCan id)
     series_name   TEXT NOT NULL,
@@ -43,7 +37,7 @@ COMMENT ON TABLE credit.dim_series IS 'Series dimension: describes each time ser
 -- -----------------------------------------------------------------------------
 -- dim_date : daily calendar dimension
 -- -----------------------------------------------------------------------------
-CREATE TABLE credit.dim_date (
+CREATE TABLE IF NOT EXISTS credit.dim_date (
     date_key        INTEGER PRIMARY KEY,         -- YYYYMMDD
     date            DATE NOT NULL UNIQUE,
     year            SMALLINT NOT NULL,
@@ -62,7 +56,7 @@ COMMENT ON TABLE credit.dim_date IS 'Daily calendar dimension spanning the data 
 -- -----------------------------------------------------------------------------
 -- fact_observations : one row per series per observation date
 -- -----------------------------------------------------------------------------
-CREATE TABLE credit.fact_observations (
+CREATE TABLE IF NOT EXISTS credit.fact_observations (
     observation_id    BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     series_key        INTEGER NOT NULL REFERENCES credit.dim_series(series_key),
     date_key          INTEGER NOT NULL REFERENCES credit.dim_date(date_key),

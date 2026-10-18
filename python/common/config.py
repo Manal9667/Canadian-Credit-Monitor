@@ -74,6 +74,12 @@ class DatabaseConfig:
 
 def load_database_config() -> DatabaseConfig:
     """Read PostgreSQL settings from environment variables (never hard-coded)."""
+    try:
+        from dotenv import load_dotenv
+    except ImportError:
+        pass
+    else:
+        load_dotenv(PROJECT_ROOT / ".env", override=False)
     return DatabaseConfig(
         host=os.getenv("PGHOST", ""),
         port=os.getenv("PGPORT", "5432"),

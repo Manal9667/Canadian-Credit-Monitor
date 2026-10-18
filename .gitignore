@@ -1,0 +1,140 @@
+# Environment Variables
+.env
+.env.local
+.env.*.local
+.*.env
+.env.*
+!.env.example
+
+# IDE & Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+venv/
+env/
+ENV/
+
+# Virtual environments
+.venv/
+pipenv.lock
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+postgres.log
+
+# Secrets & Credentials
+.aws/
+.gcp/
+.azure/
+secrets/
+*.key
+*.pem
+*.pfx
+*.p12
+.netrc
+config/secrets.json
+.ssh/
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+.tmp/
+*.tmp
+*.bak
+*.backup
+
+# OS-specific
+Thumbs.db
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Power BI
+*.pbix.bak
+.pbi-cache/
+
+# Data files (keep documentation, exclude sensitive/large files)
+data/raw/*
+!data/raw/.gitkeep
+# Keep the Bank of Canada snapshot selected by latest.json for offline reruns.
+!data/raw/bank_of_canada/
+!data/raw/bank_of_canada/20261012T232655Z/
+!data/raw/bank_of_canada/20261012T232655Z/**
+!data/raw/bank_of_canada/20261013T224303Z/
+!data/raw/bank_of_canada/20261013T224303Z/**
+!data/raw/statistics_canada/
+!data/raw/statistics_canada/20261013T224311Z/
+!data/raw/statistics_canada/20261013T224311Z/**
+*.csv.bak
+*.csv.orig
+
+# Test coverage
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+
+# Node modules (if applicable)
+node_modules/
+npm-debug.log
+
+# Configuration overrides
+config/local.json
+
+# Locally generated static deployment bundle
+frontend/site/
+
+# IDE run configurations
+.run/
+
+# Compiled files
+*.compiled
+*.o
+
+# Archive files (except project files)
+*.zip.bak
+*.tar.gz.bak
+
+# DO NOT COMMIT
+# - Any environment file (.env)
+# - Any credentials or API keys
+# - Database connection strings
+# - Private SSH keys
+# - AWS credentials
+# - Any secrets or sensitive data
+# - Full data files (partial OK for testing)
+# - IDE-specific cache directories

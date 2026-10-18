@@ -1,0 +1,8 @@
+term,estimate,hac12_se,ci95_low,ci95_high,n,date_min,date_max,specification
+intercept,-0.07195708744996329,0.20558667410993473,-0.47490696870543536,0.3309927938055087,108,2017-08,2026-07,YoY growth ~ policy 12m change lags 0-3 + lagged YoY growth + linear trend; OLS HAC(12)
+policy_lag0,-0.1575884924185026,0.17706075607790023,-0.504627574331187,0.18945058949418186,108,2017-08,2026-07,YoY growth ~ policy 12m change lags 0-3 + lagged YoY growth + linear trend; OLS HAC(12)
+policy_lag1,1.7336826474350282,0.5207966069668712,0.7129212977799606,2.754443997090096,108,2017-08,2026-07,YoY growth ~ policy 12m change lags 0-3 + lagged YoY growth + linear trend; OLS HAC(12)
+policy_lag2,-1.96371818165963,0.5370452159260228,-3.016326804874635,-0.9111095584446254,108,2017-08,2026-07,YoY growth ~ policy 12m change lags 0-3 + lagged YoY growth + linear trend; OLS HAC(12)
+policy_lag3,0.32326494433050595,0.20926582804054095,-0.08689607862895432,0.7334259672899662,108,2017-08,2026-07,YoY growth ~ policy 12m change lags 0-3 + lagged YoY growth + linear trend; OLS HAC(12)
+growth_lag1,0.9667100236738433,0.02015500966251796,0.9272062047353081,1.0062138426123786,108,2017-08,2026-07,YoY growth ~ policy 12m change lags 0-3 + lagged YoY growth + linear trend; OLS HAC(12)
+trend,0.004112279460254331,0.00201135007025617,0.0001700333225522375,0.008054525597956424,108,2017-08,2026-07,YoY growth ~ policy 12m change lags 0-3 + lagged YoY growth + linear trend; OLS HAC(12)

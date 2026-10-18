@@ -1,0 +1,80 @@
+{
+  "transformation_schema_version": "1.1",
+  "transformations": [
+    "normalize observation dates to daily timestamps",
+    "validate unique (series_id, observation_date) keys",
+    "coerce values to numeric and reject malformed non-empty values",
+    "build source, series and date dimensions with a long observation fact table"
+  ],
+  "transformed_utc": "2026-10-18T16:38:11.738666+00:00",
+  "series_count": 20,
+  "observation_count": 12049,
+  "date_min": "1990-01-01",
+  "date_max": "2026-10-12",
+  "sources": [
+    "bank_of_canada",
+    "statistics_canada"
+  ],
+  "source_provenance": [
+    {
+      "source": "bank_of_canada",
+      "snapshot": "20261013T224303Z",
+      "retrieved_utc": "2026-10-13T22:43:11.139739+00:00",
+      "observation_count": 11465,
+      "series_count": 16,
+      "source_identifiers": {
+        "series_ids": [
+          "V122667736",
+          "V122667742",
+          "V122667758",
+          "V122667760",
+          "V122667761",
+          "V122667762",
+          "V122667763",
+          "V122667770",
+          "V122667809",
+          "V122667812",
+          "V122667821",
+          "V39079",
+          "V80691311",
+          "V80691333",
+          "V80691334",
+          "V80691335"
+        ]
+      },
+      "snapshot_sha256": {
+        "observations.csv": "df969e2a782f3265ffd0e08694741502aec8bf2bdd8e2dd01dbd32ce755725f1",
+        "series_metadata.csv": "5af167b1673822b96a774c2329cb2a3200c2bd8198a16980b4da07b3ad636f13"
+      }
+    },
+    {
+      "source": "statistics_canada",
+      "snapshot": "20261013T224311Z",
+      "retrieved_utc": "2026-10-13T22:43:12.617130+00:00",
+      "observation_count": 584,
+      "series_count": 4,
+      "source_identifiers": {
+        "table_ids": [
+          "38100238"
+        ],
+        "vector_ids": [
+          "v1038036698",
+          "v1038036700",
+          "v1038036701",
+          "v1038036703"
+        ]
+      },
+      "snapshot_sha256": {
+        "observations.csv": "1a0570ff5fe669927a46b9bf6faa83c90141015f6522562ce11cbe18cc0394ae",
+        "series_metadata.csv": "97015cff6fc345821e83e46ae52c2ba1e2b36dc157f668ed315961f8a88af8a3"
+      }
+    }
+  ],
+  "outputs": [
+    "dim_source.csv",
+    "dim_series.csv",
+    "dim_date.csv",
+    "fact_observations.csv",
+    "pipeline_metadata.json"
+  ]
+}

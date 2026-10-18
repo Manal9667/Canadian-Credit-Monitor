@@ -1,0 +1,16 @@
+record_type,series_name,category,severity,current_value,zscore,reason,observation_date,absolute_change,pct_change,unit
+active_alert,"Personal lines of credit, unsecured (outstanding balances)",Household Credit,MEDIUM,74842.0,2.599,latest value is 2.60 standard deviations above its trailing 12-period average; value sits in the extreme tail of its full historical range,2026-07-01,,,
+active_alert,Auto loans (outstanding balances),Household Credit,MEDIUM,111845.0,2.464,latest value is 2.46 standard deviations above its trailing 12-period average; value sits in the extreme tail of its full historical range,2026-07-01,,,
+active_alert,"Consumer credit, total (outstanding balances)",Household Credit,MEDIUM,704582.0,2.211,latest value is 2.21 standard deviations above its trailing 12-period average; value sits in the extreme tail of its full historical range,2026-07-01,,,
+active_alert,"Personal lines of credit, secured (outstanding balances)",Household Credit,MEDIUM,374696.0,2.196,latest value is 2.20 standard deviations above its trailing 12-period average; value sits in the extreme tail of its full historical range,2026-07-01,,,
+active_alert,"Business loans, total (outstanding balances)",Business Credit,MEDIUM,941538.0,2.137,latest value is 2.14 standard deviations above its trailing 12-period average; value sits in the extreme tail of its full historical range,2026-07-01,,,
+active_alert,Household credit market debt (level),Household Credit,NORMAL,3280888.0,1.805,value sits in the extreme tail of its full historical range,2026-04-01,,,
+active_alert,Household consumer credit liabilities (level),Household Credit,NORMAL,678683.0,1.789,value sits in the extreme tail of its full historical range,2026-04-01,,,
+active_alert,Household mortgage liabilities (level),Household Credit,NORMAL,2446879.0,1.772,value sits in the extreme tail of its full historical range,2026-04-01,,,
+active_alert,Credit card loans (outstanding balances),Household Credit,NORMAL,107880.0,1.694,value sits in the extreme tail of its full historical range,2026-07-01,,,
+active_alert,"Residential mortgages, uninsured, total (outstanding balances)",Household Credit,NORMAL,1254149.0,1.281,value sits in the extreme tail of its full historical range,2026-07-01,,,
+largest_change,Household credit market debt (level),Household Credit,,3280888.0,,,2026-04-01,28432.0,0.8742,millions_cad
+largest_change,Household mortgage liabilities (level),Household Credit,,2446879.0,,,2026-04-01,19324.0,0.796,millions_cad
+largest_change,Household consumer credit liabilities (level),Household Credit,,678683.0,,,2026-04-01,6247.0,0.929,millions_cad
+largest_change,"Consumer credit, total (outstanding balances)",Household Credit,,704582.0,,,2026-07-01,6057.0,0.8671,millions_cad
+largest_change,"Personal lines of credit, secured (outstanding balances)",Household Credit,,374696.0,,,2026-07-01,5769.0,1.5637,millions_cad

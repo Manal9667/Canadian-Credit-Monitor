@@ -1,0 +1,14 @@
+lag_months,convention,n,date_min,date_max,correlation
+0,policy change at t; credit growth at t+k,109,2017-07,2026-07,0.4153548273282546
+1,policy change at t; credit growth at t+k,109,2017-06,2026-06,0.37616997526937584
+2,policy change at t; credit growth at t+k,109,2017-05,2026-05,0.32098973216831306
+3,policy change at t; credit growth at t+k,109,2017-04,2026-04,0.25856376050541163
+4,policy change at t; credit growth at t+k,109,2017-03,2026-03,0.1962381809441865
+5,policy change at t; credit growth at t+k,109,2017-02,2026-02,0.13869877858023724
+6,policy change at t; credit growth at t+k,109,2017-01,2026-01,0.0838440698591434
+7,policy change at t; credit growth at t+k,109,2016-12,2025-12,0.03165780462136138
+8,policy change at t; credit growth at t+k,109,2016-11,2025-11,-0.015617053576322936
+9,policy change at t; credit growth at t+k,109,2016-10,2025-10,-0.0597398805599245
+10,policy change at t; credit growth at t+k,109,2016-09,2025-09,-0.1001090070767959
+11,policy change at t; credit growth at t+k,109,2016-08,2025-08,-0.1392991208721364
+12,policy change at t; credit growth at t+k,109,2016-07,2025-07,-0.1775997245511343

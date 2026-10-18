@@ -34,8 +34,11 @@ from ..common.io_utils import (
     utc_now_iso,
     write_metadata,
     write_raw_dataframe,
+    sha256_file,
+    write_refresh_status,
 )
 from ..common.logging_utils import get_logger
+from ..validation.engine import validate_candidate_snapshot
 
 logger = get_logger("ingestion.statistics_canada")
 
@@ -58,9 +61,9 @@ def _download_table_csv(product_id: str) -> pd.DataFrame:
     """Resolve the official CSV download URL and load the extracted table."""
     cfg = load_series_config()["statistics_canada"]
     base = cfg["api_base"].rstrip("/")
-    max_retries = int(get_setting("max_retries", 3))
-    backoff = float(get_setting("retry_backoff_seconds", 2))
-    timeout = int(get_setting("request_timeout_seconds", 30))
+    max_retries = max(1, min(5, int(get_setting("max_retries", 3))))
+    backoff = max(0.0, min(30.0, float(get_setting("retry_backoff_seconds", 2))))
+    timeout = max(1, min(120, int(get_setting("request_timeout_seconds", 30))))
     headers = {"User-Agent": str(get_setting("user_agent", "credit-intelligence-platform"))}
 
     meta_url = f"{base}/getFullTableDownloadCSV/{product_id}/en"
@@ -83,15 +86,30 @@ def _download_table_csv(product_id: str) -> pd.DataFrame:
                     raise StatCanError(f"No data CSV inside StatCan archive for {product_id}")
                 with archive.open(data_names[0]) as fh:
                     return pd.read_csv(fh, dtype=str, low_memory=False)
+        except requests.exceptions.JSONDecodeError as exc:
+            last_error = exc
+            logger.warning("StatCan returned malformed JSON for %s: %s", product_id, exc)
+            break
         except (requests.RequestException, ValueError, zipfile.BadZipFile, StatCanError) as exc:
             last_error = exc
+            response = getattr(exc, "response", None)
+            status_code = getattr(response, "status_code", None)
+            transient_http = status_code is None or status_code == 429 or status_code >= 500
+            transient = (
+                isinstance(exc, (requests.RequestException, zipfile.BadZipFile))
+                and transient_http
+            )
             logger.warning(
                 "StatCan download failed (attempt %s/%s) for %s: %s",
                 attempt, max_retries, product_id, exc,
             )
-            if attempt < max_retries:
+            if transient and attempt < max_retries:
                 time.sleep(backoff * attempt)
-    raise StatCanError(f"Failed to retrieve StatCan table {product_id}: {last_error}")
+            elif not transient:
+                break
+    raise StatCanError(
+        f"Failed to retrieve StatCan table {product_id} after {attempt} attempt(s): {last_error}"
+    )
 
 
 def _resolve_match_column(df: pd.DataFrame, requested: str) -> str | None:
@@ -107,6 +125,11 @@ def _resolve_match_column(df: pd.DataFrame, requested: str) -> str | None:
 
 def _extract_filtered_series(df: pd.DataFrame, table_cfg: dict[str, Any]) -> tuple[pd.DataFrame, list[dict[str, Any]], list[str]]:
     """Apply configured descriptor filters, returning observations + metadata."""
+    missing = {"REF_DATE", "VALUE"} - set(df.columns)
+    if missing:
+        raise StatCanError(
+            f"Table {table_cfg['product_id']} is missing required columns: {sorted(missing)}"
+        )
     frames: list[pd.DataFrame] = []
     metas: list[dict[str, Any]] = []
     warnings: list[str] = []
@@ -144,14 +167,32 @@ def _extract_filtered_series(df: pd.DataFrame, table_cfg: dict[str, Any]) -> tup
         vector = subset["VECTOR"].iloc[0] if "VECTOR" in subset.columns else flt["series_name"]
         series_id = f"STATCAN_{vector}"
 
+        raw_values = subset["VALUE"]
+        values = pd.to_numeric(raw_values, errors="coerce")
+        malformed_values = (
+            raw_values.notna()
+            & raw_values.astype(str).str.strip().ne("")
+            & values.isna()
+        )
+        if malformed_values.any():
+            examples = raw_values.loc[malformed_values].astype(str).unique()[:5].tolist()
+            raise StatCanError(
+                f"Non-numeric values in table {table_cfg['product_id']}: {examples}"
+            )
+
         obs = pd.DataFrame(
             {
                 "source": SOURCE,
                 "series_id": series_id,
                 "observation_date": subset["REF_DATE"].astype(str),
-                "value": pd.to_numeric(subset["VALUE"], errors="coerce"),
+                "value": values,
             }
-        ).drop_duplicates(subset=["series_id", "observation_date"])
+        )
+        if obs.duplicated(subset=["series_id", "observation_date"]).any():
+            raise StatCanError(
+                f"Ambiguous duplicate dates for series {series_id} in table "
+                f"{table_cfg['product_id']}"
+            )
 
         frames.append(obs)
         metas.append(
@@ -179,7 +220,7 @@ def _extract_filtered_series(df: pd.DataFrame, table_cfg: dict[str, Any]) -> tup
     return combined, metas, warnings
 
 
-def ingest_all() -> dict[str, Any]:
+def _ingest_all() -> dict[str, Any]:
     """Ingest every configured StatCan table into a raw snapshot.
 
     Network / parsing failures on one table are recorded and skipped so the
@@ -213,24 +254,50 @@ def ingest_all() -> dict[str, Any]:
             "source; the Bank of Canada pipeline runs independently."
         )
 
-    snapshot = raw_snapshot_dir(SOURCE, stamp)
+    expected_series_count = sum(len(table["row_filters"]) for table in cfg["tables"])
+    if failures or warnings or len(metas) != expected_series_count:
+        raise StatCanError(
+            "Statistics Canada refresh incomplete; keeping the previous snapshot "
+            f"selected. failures={failures}; schema_warnings={warnings}; "
+            f"series_found={len(metas)}; series_expected={expected_series_count}"
+        )
+
     observations = pd.concat(frames, ignore_index=True)
     meta_df = pd.DataFrame.from_records(metas)
+    expected_series_ids = set(meta_df["series_id"].astype(str))
+    try:
+        validation_summary = validate_candidate_snapshot(
+            observations, meta_df, SOURCE, expected_series_ids
+        )
+    except ValueError as exc:
+        raise StatCanError(
+            f"Statistics Canada candidate rejected; previous snapshot remains selected: {exc}"
+        ) from exc
 
-    write_raw_dataframe(observations, snapshot, "observations.csv")
-    write_raw_dataframe(meta_df, snapshot, "series_metadata.csv")
+    snapshot = raw_snapshot_dir(SOURCE, stamp)
+    observations_path = write_raw_dataframe(observations, snapshot, "observations.csv")
+    metadata_path = write_raw_dataframe(meta_df, snapshot, "series_metadata.csv")
 
     run_metadata = {
         "source": SOURCE,
         "api_base": cfg["api_base"],
         "retrieved_utc": utc_now_iso(),
         "snapshot": stamp,
+        "source_identifiers": {
+            "table_ids": sorted({str(table["product_id"]) for table in cfg["tables"]}),
+            "vector_ids": sorted(meta_df["statcan_vector"].astype(str).unique().tolist()),
+        },
         "tables_requested": len(cfg["tables"]),
         "series_succeeded": len(metas),
         "tables_failed": len(failures),
         "failures": failures,
         "schema_warnings": warnings,
+        "validation": validation_summary,
         "observation_count": int(len(observations)),
+        "snapshot_sha256": {
+            "observations.csv": sha256_file(observations_path),
+            "series_metadata.csv": sha256_file(metadata_path),
+        },
         "requires_api_key": False,
         "licence": "Statistics Canada Open Licence",
     }
@@ -242,6 +309,17 @@ def ingest_all() -> dict[str, Any]:
         len(metas), len(observations), snapshot,
     )
     return run_metadata
+
+
+def ingest_all() -> dict[str, Any]:
+    """Run ingestion and persist the attempt result without replacing good data."""
+    try:
+        result = _ingest_all()
+    except Exception as exc:
+        write_refresh_status(SOURCE, "FAILED", exc)
+        raise
+    write_refresh_status(SOURCE, "SUCCEEDED")
+    return result
 
 
 if __name__ == "__main__":

@@ -79,7 +79,7 @@ def load() -> bool:
     if psycopg2 is None:
         return False
 
-    missing = [p for p in ("dim_source.csv", "fact_observations.csv")
+    missing = [p for p, _, _ in LOAD_PLAN
                if not (PROCESSED_DIR / p).exists()]
     if missing:
         logger.error("Processed files missing: %s. Run the transform step first.", missing)
@@ -94,6 +94,10 @@ def load() -> bool:
         with conn.cursor() as cur:
             for ddl in DDL_ORDER:
                 _run_sql_file(cur, SQL_DIR / ddl)
+            cur.execute(
+                "TRUNCATE TABLE credit.fact_observations, credit.dim_series, "
+                "credit.dim_date, credit.dim_source RESTART IDENTITY CASCADE"
+            )
             for csv_name, table, columns in LOAD_PLAN:
                 n = _copy_csv(cur, PROCESSED_DIR / csv_name, table, columns)
                 logger.info("Loaded %s rows into %s", n, table)

@@ -1,0 +1,17 @@
+source,series_id,series_name,category,subcategory,unit,frequency,measure_type,observation_count,min_date,max_date
+bank_of_canada,V39079,Policy interest rate (target for the overnight rate),Policy Rate,Overnight target,percent,daily,rate,4546,2009-04-21,2026-10-12
+bank_of_canada,V80691311,Chartered bank prime lending rate,Posted Rate,Prime,percent,weekly,rate,1397,2000-01-05,2026-10-07
+bank_of_canada,V80691333,"Conventional mortgage rate, 1-year",Posted Rate,Mortgage 1-year,percent,weekly,rate,1397,2000-01-05,2026-10-07
+bank_of_canada,V80691334,"Conventional mortgage rate, 3-year",Posted Rate,Mortgage 3-year,percent,weekly,rate,1397,2000-01-05,2026-10-07
+bank_of_canada,V80691335,"Conventional mortgage rate, 5-year",Posted Rate,Mortgage 5-year,percent,weekly,rate,1397,2000-01-05,2026-10-07
+bank_of_canada,V122667758,"Consumer credit, total (outstanding balances)",Household Credit,Consumer credit total,millions_cad,monthly,balance,121,2016-07-01,2026-07-01
+bank_of_canada,V122667761,Credit card loans (outstanding balances),Household Credit,Credit cards,millions_cad,monthly,balance,121,2016-07-01,2026-07-01
+bank_of_canada,V122667762,"Personal lines of credit, secured (outstanding balances)",Household Credit,PLOC secured,millions_cad,monthly,balance,121,2016-07-01,2026-07-01
+bank_of_canada,V122667763,"Personal lines of credit, unsecured (outstanding balances)",Household Credit,PLOC unsecured,millions_cad,monthly,balance,121,2016-07-01,2026-07-01
+bank_of_canada,V122667760,Auto loans (outstanding balances),Household Credit,Auto loans,millions_cad,monthly,balance,121,2016-07-01,2026-07-01
+bank_of_canada,V122667736,"Residential mortgages, insured, total (outstanding balances)",Household Credit,Mortgages insured,millions_cad,monthly,balance,121,2016-07-01,2026-07-01
+bank_of_canada,V122667742,"Residential mortgages, uninsured, total (outstanding balances)",Household Credit,Mortgages uninsured,millions_cad,monthly,balance,121,2016-07-01,2026-07-01
+bank_of_canada,V122667770,"Business loans, total (outstanding balances)",Business Credit,Business loans total,millions_cad,monthly,balance,121,2016-07-01,2026-07-01
+bank_of_canada,V122667809,"Consumer credit, total (effective lending rate)",Effective Lending Rate,Consumer credit rate,percent,monthly,rate,121,2016-07-01,2026-07-01
+bank_of_canada,V122667812,Credit card loans (effective lending rate),Effective Lending Rate,Credit card rate,percent,monthly,rate,121,2016-07-01,2026-07-01
+bank_of_canada,V122667821,"Business loans, total (effective lending rate)",Effective Lending Rate,Business loan rate,percent,monthly,rate,121,2016-07-01,2026-07-01

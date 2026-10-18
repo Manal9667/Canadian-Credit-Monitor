@@ -3,7 +3,6 @@
 //   * data-type normalisation
 //   * filtering
 //   * missing-value handling
-//   * a reference-data merge (join to dim_series to pull category/measure_type)
 //   * a derived, model-friendly field
 //
 // Note on layering: heavy row-level enrichment already happened in Python/SQL.
@@ -24,26 +23,15 @@ let
         {"value", type number}
     }),
 
-    // Missing-value handling: source suppressions arrive as null. Keep the row
-    // (so the date axis stays continuous) but tag it for transparent reporting.
-    Tagged = Table.AddColumn(Typed, "is_estimated_missing", each [value] = null, type logical),
+    // Preserve null source observations; they are missing, not estimated zeros.
+    Tagged = Table.AddColumn(Typed, "is_missing", each [value] = null, type logical),
 
     // Filtering: drop any rows with an unparseable/blank observation date.
     Filtered = Table.SelectRows(Tagged, each [observation_date] <> null),
 
-    // Reference-data merge: bring measure_type + category from dim_series so the
-    // fact can be filtered by analytical grouping without a model relationship
-    // round-trip in some visuals.
-    Merged = Table.NestedJoin(
-        Filtered, {"series_key"}, dim_series, {"series_key"}, "series", JoinKind.LeftOuter
-    ),
-    Expanded = Table.ExpandTableColumn(
-        Merged, "series", {"measure_type", "category"}, {"measure_type", "category"}
-    ),
-
-    // Derived field: signed value for rate vs balance shared visuals is not
-    // needed, but a clean rounded display value is useful.
-    WithDisplay = Table.AddColumn(Expanded, "value_display",
+    // Keep the fact table at its declared grain; use the dim_series relationship
+    // for category and measure-type filtering in the semantic model.
+    WithDisplay = Table.AddColumn(Filtered, "value_display",
         each if [value] = null then null else Number.Round([value], 4), type number)
 in
     WithDisplay

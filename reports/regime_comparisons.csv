@@ -1,0 +1,25 @@
+series_id,series_name,metric,regime,average_value,median_value,n,date_min,date_max
+V122667758,Consumer credit total,monthly_yoy_growth_pct,easing,3.5333,4.2067,37,2020-03-01,2026-07-01
+V122667758,Consumer credit total,monthly_yoy_growth_pct,hiking,5.8099,5.6415,52,2017-08-01,2024-05-01
+V122667758,Consumer credit total,monthly_yoy_growth_pct,stable,3.2329,2.5355,20,2017-07-01,2024-07-01
+V122667761,Credit cards,monthly_yoy_growth_pct,easing,-0.057,4.8061,37,2020-03-01,2026-07-01
+V122667761,Credit cards,monthly_yoy_growth_pct,hiking,13.0619,14.4556,52,2017-08-01,2024-05-01
+V122667761,Credit cards,monthly_yoy_growth_pct,stable,2.2652,3.2769,20,2017-07-01,2024-07-01
+V122667762,Secured PLOC,monthly_yoy_growth_pct,easing,5.0696,1.5798,37,2020-03-01,2026-07-01
+V122667762,Secured PLOC,monthly_yoy_growth_pct,hiking,5.6375,6.4073,52,2017-08-01,2024-05-01
+V122667762,Secured PLOC,monthly_yoy_growth_pct,stable,3.9721,4.23,20,2017-07-01,2024-07-01
+V122667763,Unsecured PLOC,monthly_yoy_growth_pct,easing,5.3436,2.9932,37,2020-03-01,2026-07-01
+V122667763,Unsecured PLOC,monthly_yoy_growth_pct,hiking,3.2643,2.4886,52,2017-08-01,2024-05-01
+V122667763,Unsecured PLOC,monthly_yoy_growth_pct,stable,0.4416,-0.4058,20,2017-07-01,2024-07-01
+V122667760,Auto loans,monthly_yoy_growth_pct,easing,3.3374,2.7352,37,2020-03-01,2026-07-01
+V122667760,Auto loans,monthly_yoy_growth_pct,hiking,4.953,5.2885,52,2017-08-01,2024-05-01
+V122667760,Auto loans,monthly_yoy_growth_pct,stable,4.2108,4.1584,20,2017-07-01,2024-07-01
+V122667736,Insured mortgages,monthly_yoy_growth_pct,easing,-0.622,-1.0219,37,2020-03-01,2026-07-01
+V122667736,Insured mortgages,monthly_yoy_growth_pct,hiking,-5.7125,-5.5931,52,2017-08-01,2024-05-01
+V122667736,Insured mortgages,monthly_yoy_growth_pct,stable,-4.7047,-4.8226,20,2017-07-01,2024-07-01
+V122667742,Uninsured mortgages,monthly_yoy_growth_pct,easing,7.1198,6.2041,37,2020-03-01,2026-07-01
+V122667742,Uninsured mortgages,monthly_yoy_growth_pct,hiking,12.543,13.1993,52,2017-08-01,2024-05-01
+V122667742,Uninsured mortgages,monthly_yoy_growth_pct,stable,17.4636,20.0723,20,2017-07-01,2024-07-01
+STATCAN_v1038036698,Household debt-to-income,quarterly_dti_ratio,easing,176.3131,176.12,16,2015-04-01,2026-04-01
+STATCAN_v1038036698,Household debt-to-income,quarterly_dti_ratio,hiking,180.1914,183.835,22,2010-07-01,2024-04-01
+STATCAN_v1038036698,Household debt-to-income,quarterly_dti_ratio,stable,175.6381,171.54,27,2010-04-01,2024-07-01

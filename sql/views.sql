@@ -171,16 +171,19 @@ LEFT JOIN mtg5  m   ON m.observation_date   = p.observation_date
 ORDER BY p.observation_date;
 
 -- -----------------------------------------------------------------------------
--- 8. Category share: each Household Credit balance series as a share of the
---    monthly total (conditional / partitioned aggregation).
+-- 8. Shares of tracked, non-aggregate Bank of Canada household credit
+--    components. The consumer-credit total is excluded because its component
+--    series are also present; this is not a measure of total household debt.
 -- -----------------------------------------------------------------------------
-CREATE OR REPLACE VIEW credit.vw_category_share AS
+DROP VIEW IF EXISTS credit.vw_category_share;
+CREATE VIEW credit.vw_category_share AS
 WITH hh AS (
     SELECT e.observation_date, e.series_id, e.series_name, e.subcategory, e.value
     FROM credit.vw_observations_enriched e
     WHERE e.category = 'Household Credit'
       AND e.measure_type = 'balance'
       AND e.source_key = 'bank_of_canada'
+        AND e.subcategory <> 'Consumer credit total'
 )
 SELECT
     observation_date,
@@ -188,9 +191,10 @@ SELECT
     series_name,
     subcategory,
     value,
-    SUM(value) OVER (PARTITION BY observation_date) AS total_household_credit,
+        SUM(value) OVER (PARTITION BY observation_date) AS tracked_component_total,
     ROUND(100.0 * value
-          / NULLIF(SUM(value) OVER (PARTITION BY observation_date), 0), 3) AS pct_of_total
+                    / NULLIF(SUM(value) OVER (PARTITION BY observation_date), 0), 3)
+                    AS pct_of_tracked_components
 FROM hh;
 
 -- -----------------------------------------------------------------------------

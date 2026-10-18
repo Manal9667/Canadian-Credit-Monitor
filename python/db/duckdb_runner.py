@@ -61,14 +61,14 @@ def _split_statements(sql: str) -> list[str]:
     return statements
 
 
-def build_connection():
+def build_connection(processed_dir: Path = PROCESSED_DIR):
     """Create an in-memory DuckDB with the credit schema, tables and views."""
     import duckdb  # imported lazily so the dependency is optional
 
     for csv in REQUIRED_CSVS:
-        if not (PROCESSED_DIR / csv).exists():
+        if not (processed_dir / csv).exists():
             raise FileNotFoundError(
-                f"{csv} not found in {PROCESSED_DIR}. Run the transform step first."
+            f"{csv} not found in {processed_dir}. Run the transform step first."
             )
 
     con = duckdb.connect(database=":memory:")
@@ -80,14 +80,14 @@ def build_connection():
         ("dim_series.csv", "dim_series"),
         ("dim_date.csv", "dim_date"),
     ]:
-        path = (PROCESSED_DIR / csv).as_posix()
+        path = (processed_dir / csv).resolve().as_posix()
         con.execute(
             f"CREATE TABLE credit.{table} AS SELECT * FROM read_csv_auto('{path}', header=true);"
         )
 
     # The fact table gets a generated observation_id in PostgreSQL (IDENTITY);
     # add an equivalent surrogate here so views.sql runs unchanged.
-    fact_path = (PROCESSED_DIR / "fact_observations.csv").as_posix()
+    fact_path = (processed_dir / "fact_observations.csv").resolve().as_posix()
     con.execute(
         "CREATE TABLE credit.fact_observations AS "
         "SELECT ROW_NUMBER() OVER () AS observation_id, * "
@@ -100,7 +100,7 @@ def build_connection():
     created = 0
     for stmt in statements:
         con.execute(stmt + ";")
-        if re.search(r"(?is)create\s+or\s+replace\s+view", stmt):
+        if re.search(r"(?is)create\s+(?:or\s+replace\s+)?view", stmt):
             created += 1
     logger.info("DuckDB: loaded 4 tables and created %s views from views.sql", created)
     return con
@@ -114,6 +114,7 @@ def query(con, sql: str) -> pd.DataFrame:
 if __name__ == "__main__":
     connection = build_connection()
     for view in [
+        "vw_observations_enriched",
         "vw_latest_observation",
         "vw_period_changes",
         "vw_yoy_change",

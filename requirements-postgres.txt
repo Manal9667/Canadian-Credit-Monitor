@@ -1,0 +1,5 @@
+-r requirements.txt
+
+# Optional: PostgreSQL bulk loading and .env-file support.
+psycopg2-binary==2.9.13
+python-dotenv==1.2.4

@@ -18,7 +18,8 @@ FROM latest_yoy
 WHERE rn = 1
 ORDER BY yoy_pct_change DESC NULLS LAST;
 
--- Q3. Composition of household credit at the most recent month.
+-- Q3. Shares of tracked non-aggregate BoC household-credit components at the
+--     latest month; this is not a total household-debt composition.
 --     Demonstrates: subquery for MAX date, partitioned share, ORDER BY.
 SELECT series_name, subcategory, value, pct_of_total
 FROM credit.vw_category_share

@@ -1,0 +1,7 @@
+observation_date,series_id,series_name,balance_millions_cad,tracked_component_total_millions_cad,share_of_tracked_components_pct
+2026-07-01,V122667742,Uninsured mortgages,1254149.0,2301413.0,54.4947
+2026-07-01,V122667736,Insured mortgages,378001.0,2301413.0,16.4247
+2026-07-01,V122667762,Secured PLOC,374696.0,2301413.0,16.2811
+2026-07-01,V122667760,Auto loans,111845.0,2301413.0,4.8598
+2026-07-01,V122667761,Credit cards,107880.0,2301413.0,4.6876
+2026-07-01,V122667763,Unsecured PLOC,74842.0,2301413.0,3.252

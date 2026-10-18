@@ -36,38 +36,46 @@ monitors. It is the backbone of the project.
 
 | Series ID | Measures | Frequency | Unit | Coverage |
 |---|---|---|---|---|
-| V39079 | Target for the overnight rate (policy rate) | Daily | % | 2009-04-21 → 2026-09-24 |
-| V80691311 | Chartered-bank prime lending rate | Weekly | % | 2000-01-05 → 2026-09-23 |
-| V80691333 | Conventional mortgage rate, 1-year | Weekly | % | 2000-01-05 → 2026-09-23 |
-| V80691334 | Conventional mortgage rate, 3-year | Weekly | % | 2000-01-05 → 2026-09-23 |
-| V80691335 | Conventional mortgage rate, 5-year | Weekly | % | 2000-01-05 → 2026-09-23 |
+| V39079 | Target for the overnight rate (policy rate) | Daily | % | 2009-04-21 → 2026-10-12 |
+| V80691311 | Chartered-bank prime lending rate | Weekly | % | 2000-01-05 → 2026-10-07 |
+| V80691333 | Conventional mortgage rate, 1-year | Weekly | % | 2000-01-05 → 2026-10-07 |
+| V80691334 | Conventional mortgage rate, 3-year | Weekly | % | 2000-01-05 → 2026-10-07 |
+| V80691335 | Conventional mortgage rate, 5-year | Weekly | % | 2000-01-05 → 2026-10-07 |
 
 **Credit balances (chartered banks, A4 — month-end, $ millions)**
 
 | Series ID | Measures | Coverage |
 |---|---|---|
-| V122667758 | Consumer credit, total (outstanding) | 2016-07 → 2026-06 |
-| V122667761 | Credit card loans (outstanding) | 2016-07 → 2026-06 |
-| V122667762 | Personal lines of credit, secured (outstanding) | 2016-07 → 2026-06 |
-| V122667763 | Personal lines of credit, unsecured (outstanding) | 2016-07 → 2026-06 |
-| V122667760 | Auto loans (outstanding) | 2016-07 → 2026-06 |
-| V122667736 | Residential mortgages, insured, total (outstanding) | 2016-07 → 2026-06 |
-| V122667742 | Residential mortgages, uninsured, total (outstanding) | 2016-07 → 2026-06 |
-| V122667770 | Business loans, total (outstanding) | 2016-07 → 2026-06 |
+| V122667758 | Consumer credit, total (outstanding) | 2016-07 → 2026-07 |
+| V122667761 | Credit card loans (outstanding) | 2016-07 → 2026-07 |
+| V122667762 | Personal lines of credit, secured (outstanding) | 2016-07 → 2026-07 |
+| V122667763 | Personal lines of credit, unsecured (outstanding) | 2016-07 → 2026-07 |
+| V122667760 | Auto loans (outstanding) | 2016-07 → 2026-07 |
+| V122667736 | Residential mortgages, insured, total (outstanding) | 2016-07 → 2026-07 |
+| V122667742 | Residential mortgages, uninsured, total (outstanding) | 2016-07 → 2026-07 |
+| V122667770 | Business loans, total (outstanding) | 2016-07 → 2026-07 |
 
 **Effective lending rates (chartered banks, A4 — month-end, %)**
 
 | Series ID | Measures | Coverage |
 |---|---|---|
-| V122667809 | Consumer credit, total (effective rate) | 2016-07 → 2026-06 |
-| V122667812 | Credit card loans (effective rate) | 2016-07 → 2026-06 |
-| V122667821 | Business loans, total (effective rate) | 2016-07 → 2026-06 |
+| V122667809 | Consumer credit, total (effective rate) | 2016-07 → 2026-07 |
+| V122667812 | Credit card loans (effective rate) | 2016-07 → 2026-07 |
+| V122667821 | Business loans, total (effective rate) | 2016-07 → 2026-07 |
 
 > Note on coverage: the Bank of Canada A4 chartered-bank credit dataset begins in
 > July 2016, so all monthly credit/rate series share that start date. The posted
 > rate series reach back to 2000 and the daily policy-rate series to 2009. The
 > pipeline adapts to whatever history each series actually provides rather than
 > assuming a common window.
+
+The selected Bank of Canada snapshot was retrieved at `2026-10-13T22:43:11Z`;
+the selected Statistics Canada snapshot was retrieved at `2026-10-13T22:43:12Z`.
+The Bank's latest daily/weekly/monthly observations in those snapshots are
+2026-10-12, 2026-10-07, and 2026-07-01 respectively. The Statistics Canada
+table's latest quarter is 2026-Q2 (reference date 2026-04-01); its WDS metadata
+reports a table release time of 2026-09-11. These are source observation and
+release dates, not retrieval dates.
 
 ---
 

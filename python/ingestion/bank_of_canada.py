@@ -29,8 +29,11 @@ from ..common.io_utils import (
     utc_now_iso,
     write_metadata,
     write_raw_dataframe,
+    sha256_file,
+    write_refresh_status,
 )
 from ..common.logging_utils import get_logger
+from ..validation.engine import validate_candidate_snapshot
 
 logger = get_logger("ingestion.bank_of_canada")
 
@@ -43,9 +46,9 @@ class ValetAPIError(RuntimeError):
 
 def _request_with_retry(url: str, params: dict[str, Any] | None = None) -> dict[str, Any]:
     """GET a Valet JSON endpoint with bounded retries and clear errors."""
-    timeout = int(get_setting("request_timeout_seconds", 30))
-    max_retries = int(get_setting("max_retries", 3))
-    backoff = float(get_setting("retry_backoff_seconds", 2))
+    timeout = max(1, min(120, int(get_setting("request_timeout_seconds", 30))))
+    max_retries = max(1, min(5, int(get_setting("max_retries", 3))))
+    backoff = max(0.0, min(30.0, float(get_setting("retry_backoff_seconds", 2))))
     headers = {"User-Agent": str(get_setting("user_agent", "credit-intelligence-platform"))}
 
     last_error: Exception | None = None
@@ -56,15 +59,28 @@ def _request_with_retry(url: str, params: dict[str, Any] | None = None) -> dict[
             )
             response.raise_for_status()
             return response.json()
-        except (requests.RequestException, ValueError) as exc:  # network + JSON errors
+        except requests.exceptions.JSONDecodeError as exc:
+            # requests' JSON decode error is also a RequestException subclass.
             last_error = exc
+            break
+        except requests.RequestException as exc:
+            last_error = exc
+            response = getattr(exc, "response", None)
+            status_code = getattr(response, "status_code", None)
+            transient = status_code is None or status_code == 429 or status_code >= 500
             logger.warning(
                 "Valet request failed (attempt %s/%s) for %s: %s",
                 attempt, max_retries, url, exc,
             )
-            if attempt < max_retries:
+            if transient and attempt < max_retries:
                 time.sleep(backoff * attempt)
-    raise ValetAPIError(f"Failed to retrieve {url} after {max_retries} attempts: {last_error}")
+            elif not transient:
+                break
+        except ValueError as exc:
+            # Invalid JSON is a malformed response, not a transient transport failure.
+            last_error = exc
+            break
+    raise ValetAPIError(f"Failed to retrieve {url} after {attempt} attempt(s): {last_error}")
 
 
 def fetch_series(series_id: str, start_date: str | None = None) -> pd.DataFrame:
@@ -80,18 +96,28 @@ def fetch_series(series_id: str, start_date: str | None = None) -> pd.DataFrame:
 
     payload = _request_with_retry(url, params)
 
-    if "observations" not in payload:
+    if not isinstance(payload, dict) or "observations" not in payload:
         raise ValetAPIError(f"Series {series_id}: response missing 'observations' block")
+    if not isinstance(payload["observations"], list):
+        raise ValetAPIError(f"Series {series_id}: 'observations' must be a list")
 
     records: list[dict[str, Any]] = []
     for obs in payload["observations"]:
+        if not isinstance(obs, dict):
+            raise ValetAPIError(f"Series {series_id}: malformed observation record")
         date_str = obs.get("d")
+        if date_str is None:
+            raise ValetAPIError(f"Series {series_id}: observation is missing its date")
         cell = obs.get(series_id)
-        if date_str is None or cell is None:
-            continue
-        raw_value = cell.get("v")
-        # Valet reports suppressed / missing values as "" - preserve as NaN.
+        if cell is not None and not isinstance(cell, dict):
+            raise ValetAPIError(f"Series {series_id}: malformed value cell for {date_str}")
+        raw_value = cell.get("v") if cell is not None else None
+        # Valet may omit a cell or return an empty value for a suppressed point.
         value = pd.to_numeric(raw_value, errors="coerce") if raw_value not in (None, "") else pd.NA
+        if raw_value not in (None, "") and pd.isna(value):
+            raise ValetAPIError(
+                f"Series {series_id}: non-numeric value {raw_value!r} for {date_str}"
+            )
         records.append(
             {
                 "source": SOURCE,
@@ -109,16 +135,15 @@ def fetch_series(series_id: str, start_date: str | None = None) -> pd.DataFrame:
     return df
 
 
-def ingest_all() -> dict[str, Any]:
+def _ingest_all() -> dict[str, Any]:
     """Ingest every configured Bank of Canada series into a raw snapshot.
 
-    A failure on one series is recorded and skipped; the run still produces a
-    valid snapshot for the series that succeeded. Returns run metadata.
+    A partial result is rejected so the authoritative pointer remains on the
+    last complete, preflight-validated snapshot.
     """
     cfg = load_series_config()["bank_of_canada"]
     start_date = get_setting("start_date")
     stamp = run_stamp()
-    snapshot = raw_snapshot_dir(SOURCE, stamp)
 
     frames: list[pd.DataFrame] = []
     series_meta: list[dict[str, Any]] = []
@@ -150,28 +175,46 @@ def ingest_all() -> dict[str, Any]:
             }
         )
 
-    if not frames:
+    expected_series_ids = {spec["series_id"] for spec in cfg["series"]}
+    actual_series_ids = {item["series_id"] for item in series_meta}
+    if failures or actual_series_ids != expected_series_ids:
+        missing = sorted(expected_series_ids - actual_series_ids)
         raise ValetAPIError(
-            "No Bank of Canada series could be retrieved; leaving previous "
-            "snapshots untouched to avoid corrupting historical data."
+            "Bank of Canada refresh incomplete; keeping the previous snapshot "
+            f"selected. failures={failures}; missing_series={missing}"
         )
 
     observations = pd.concat(frames, ignore_index=True)
     meta_df = pd.DataFrame.from_records(series_meta)
+    try:
+        validation_summary = validate_candidate_snapshot(
+            observations, meta_df, SOURCE, expected_series_ids
+        )
+    except ValueError as exc:
+        raise ValetAPIError(
+            f"Bank of Canada candidate rejected; previous snapshot remains selected: {exc}"
+        ) from exc
 
-    write_raw_dataframe(observations, snapshot, "observations.csv")
-    write_raw_dataframe(meta_df, snapshot, "series_metadata.csv")
+    snapshot = raw_snapshot_dir(SOURCE, stamp)
+    observations_path = write_raw_dataframe(observations, snapshot, "observations.csv")
+    metadata_path = write_raw_dataframe(meta_df, snapshot, "series_metadata.csv")
 
     run_metadata = {
         "source": SOURCE,
         "api_base": cfg["api_base"],
         "retrieved_utc": utc_now_iso(),
         "snapshot": stamp,
+        "source_identifiers": {"series_ids": sorted(expected_series_ids)},
         "series_requested": len(cfg["series"]),
         "series_succeeded": len(frames),
         "series_failed": len(failures),
         "failures": failures,
+        "validation": validation_summary,
         "observation_count": int(len(observations)),
+        "snapshot_sha256": {
+            "observations.csv": sha256_file(observations_path),
+            "series_metadata.csv": sha256_file(metadata_path),
+        },
         "requires_api_key": False,
         "terms_url": "https://www.bankofcanada.ca/terms/",
     }
@@ -179,10 +222,21 @@ def ingest_all() -> dict[str, Any]:
     update_latest_pointer(SOURCE, stamp)
 
     logger.info(
-        "Bank of Canada ingestion complete: %s/%s series, %s observations -> %s",
+        "Bank of Canada ingestion complete and preflight validated: %s/%s series, %s observations -> %s",
         len(frames), len(cfg["series"]), len(observations), snapshot,
     )
     return run_metadata
+
+
+def ingest_all() -> dict[str, Any]:
+    """Run ingestion and persist the attempt result without moving a bad pointer."""
+    try:
+        result = _ingest_all()
+    except Exception as exc:
+        write_refresh_status(SOURCE, "FAILED", exc)
+        raise
+    write_refresh_status(SOURCE, "SUCCEEDED")
+    return result
 
 
 if __name__ == "__main__":

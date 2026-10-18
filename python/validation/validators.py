@@ -12,7 +12,6 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
-import numpy as np
 import pandas as pd
 
 # Severity ordering used for summarising a report.
@@ -22,8 +21,30 @@ SEVERITY_ORDER = {"INFO": 0, "LOW": 1, "MEDIUM": 2, "HIGH": 3, "CRITICAL": 4}
 FREQUENCY_DAYS = {"daily": 1, "weekly": 7, "monthly": 31, "quarterly": 92}
 # Multiplier beyond which a gap is considered unexpected.
 GAP_TOLERANCE = 1.6
-# Days after which the newest observation is considered stale, per frequency.
-STALE_DAYS = {"daily": 14, "weekly": 21, "monthly": 75, "quarterly": 200}
+PUBLICATION_RULES = {
+    ("bank_of_canada", "daily"): {
+        "rule": "next business day; allow two business days for Valet processing",
+        "grace": "business_days",
+        "grace_days": 2,
+    },
+    ("bank_of_canada", "weekly"): {
+        "rule": "weekly observation cadence; allow two business days for Valet processing",
+        "grace": "business_days",
+        "grace_days": 2,
+    },
+    ("bank_of_canada", "monthly"): {
+        "rule": "next reference-month end plus 60 calendar days; seven-day grace",
+        "grace": "calendar_days",
+        "grace_days": 7,
+        "lag_days": 60,
+    },
+    ("statistics_canada", "quarterly"): {
+        "rule": "next quarter end plus the observed 73-day release lag; roll back to Friday; seven-day grace",
+        "grace": "calendar_days",
+        "grace_days": 7,
+        "lag_days": 73,
+    },
+}
 
 
 @dataclass
@@ -120,7 +141,7 @@ def check_invalid_dates(df: pd.DataFrame) -> ValidationResult:
 
 
 def check_future_dates(df: pd.DataFrame, as_of: pd.Timestamp | None = None) -> ValidationResult:
-    as_of = as_of or pd.Timestamp.utcnow().tz_localize(None)
+    as_of = as_of or pd.Timestamp.now(tz="UTC").tz_localize(None)
     parsed = pd.to_datetime(df["observation_date"], errors="coerce")
     n_future = int((parsed > as_of).sum())
     status = "PASS" if n_future == 0 else "WARN"
@@ -239,18 +260,97 @@ def check_extreme_values(df: pd.DataFrame, z_threshold: float = 6.0) -> Validati
     )
 
 
+def _freshness_schedule(
+    source: str,
+    frequency: str,
+    latest_date: pd.Timestamp,
+) -> tuple[pd.Timestamp, pd.Timestamp, str] | None:
+    """Return the next expected publication, overdue date, and rule text."""
+    rule = PUBLICATION_RULES.get((source, frequency))
+    if rule is None:
+        return None
+
+    latest_date = pd.Timestamp(latest_date).normalize()
+    if frequency == "daily":
+        expected = latest_date + pd.offsets.BDay(1)
+    elif frequency == "weekly":
+        expected = latest_date + pd.Timedelta(days=7)
+    elif frequency == "monthly":
+        next_period_end = (latest_date.to_period("M") + 1).end_time.normalize()
+        expected = next_period_end + pd.Timedelta(days=rule["lag_days"])
+    else:
+        next_period_end = (latest_date.to_period("Q-DEC") + 1).end_time.normalize()
+        expected = next_period_end + pd.Timedelta(days=rule["lag_days"])
+        if expected.weekday() >= 5:
+            expected -= pd.Timedelta(days=expected.weekday() - 4)
+
+    if rule["grace"] == "business_days":
+        overdue_after = expected + pd.offsets.BDay(rule["grace_days"])
+    else:
+        overdue_after = expected + pd.Timedelta(days=rule["grace_days"])
+    return expected.normalize(), overdue_after.normalize(), rule["rule"]
+
+
+def build_series_freshness(
+    df: pd.DataFrame,
+    source: str,
+    snapshot_id: str,
+    retrieved_utc: str,
+    processed_utc: str,
+    as_of: pd.Timestamp,
+) -> list[dict[str, Any]]:
+    """Build one provenance and schedule record for each series in a snapshot."""
+    if df.empty:
+        return []
+    frame = df.copy()
+    frame["observation_date"] = pd.to_datetime(frame["observation_date"], errors="coerce")
+    rows: list[dict[str, Any]] = []
+    for series_id, group in frame.dropna(subset=["observation_date"]).groupby("series_id"):
+        latest = group["observation_date"].max().normalize()
+        frequency = str(group["frequency"].iloc[0]) if "frequency" in group else "unknown"
+        schedule = _freshness_schedule(source, frequency, latest)
+        expected, overdue_after, rule_text = schedule or (pd.NaT, pd.NaT, "No publication rule configured")
+        status = "UNKNOWN" if schedule is None else "OVERDUE" if pd.Timestamp(as_of).normalize() > overdue_after else "CURRENT"
+        name = group["series_name"].iloc[0] if "series_name" in group else series_id
+        rows.append(
+            {
+                "source": source,
+                "series_id": series_id,
+                "series_name": name,
+                "publication_frequency": frequency,
+                "source_observation_date": latest.date().isoformat(),
+                "snapshot_id": snapshot_id,
+                "retrieval_timestamp_utc": retrieved_utc,
+                "processing_timestamp_utc": processed_utc,
+                "expected_next_publication_date": expected.date().isoformat() if pd.notna(expected) else "",
+                "overdue_after_date": overdue_after.date().isoformat() if pd.notna(overdue_after) else "",
+                "freshness_status": status,
+                "schedule_rule": rule_text,
+            }
+        )
+    return rows
+
+
 def check_stale_data(df: pd.DataFrame, as_of: pd.Timestamp | None = None) -> ValidationResult:
-    """Flag series whose most recent observation is older than expected."""
-    as_of = as_of or pd.Timestamp.utcnow().tz_localize(None)
+    """Flag series only after their cadence-based expected release window."""
+    as_of = as_of or pd.Timestamp.now(tz="UTC").tz_localize(None)
     dfx = df.copy()
     dfx["observation_date"] = pd.to_datetime(dfx["observation_date"], errors="coerce")
-    stale: dict[str, int] = {}
+    stale: dict[str, dict[str, Any]] = {}
     for series_id, grp in dfx.dropna(subset=["observation_date"]).groupby("series_id"):
         freq = grp["frequency"].iloc[0] if "frequency" in grp.columns else "monthly"
+        source = grp["source"].iloc[0] if "source" in grp.columns else ""
         max_date = grp["observation_date"].max()
-        age = (as_of - max_date).days
-        if age > STALE_DAYS.get(freq, 75):
-            stale[series_id] = age
+        schedule = _freshness_schedule(source, freq, max_date)
+        if schedule is None:
+            continue
+        expected, overdue_after, _ = schedule
+        if pd.Timestamp(as_of).normalize() > overdue_after:
+            stale[series_id] = {
+                "age_days": (pd.Timestamp(as_of).normalize() - max_date.normalize()).days,
+                "expected_next_publication_date": expected.date().isoformat(),
+                "overdue_after_date": overdue_after.date().isoformat(),
+            }
     status = "PASS" if not stale else "WARN"
     severity = "INFO" if not stale else "MEDIUM"
     return ValidationResult(
@@ -259,7 +359,7 @@ def check_stale_data(df: pd.DataFrame, as_of: pd.Timestamp | None = None) -> Val
         records_affected=len(stale),
         severity=severity,
         recommended_action="None" if not stale else "Confirm source has not paused publication.",
-        details={"stale_series": len(stale)} if stale else {},
+        details={"stale_series": stale} if stale else {},
     )
 
 
