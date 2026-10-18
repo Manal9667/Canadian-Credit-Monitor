@@ -1,7 +1,7 @@
 # Canadian Banking Intelligence - Automated Report
 
 **Report Date:** 2026-10-18
-**Generated:** 2026-10-18T16:38:13.646533+00:00
+**Generated:** 2026-10-18T17:36:02.446819+00:00
 
 **Source snapshots:**
 
