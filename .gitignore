@@ -115,8 +115,7 @@ npm-debug.log
 # Configuration overrides
 config/local.json
 
-# Locally generated static deployment bundle
-frontend/site/
+
 
 # IDE run configurations
 .run/
