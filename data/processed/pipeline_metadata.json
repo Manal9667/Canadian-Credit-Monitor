@@ -6,7 +6,7 @@
     "coerce values to numeric and reject malformed non-empty values",
     "build source, series and date dimensions with a long observation fact table"
   ],
-  "transformed_utc": "2026-10-18T16:38:11.738666+00:00",
+  "transformed_utc": "2026-10-18T17:35:32.281480+00:00",
   "series_count": 20,
   "observation_count": 12049,
   "date_min": "1990-01-01",

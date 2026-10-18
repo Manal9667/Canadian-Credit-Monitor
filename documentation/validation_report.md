@@ -1,6 +1,6 @@
 # Data Quality Validation Report
 
-_Generated: 2026-10-18T16:38:11.093449+00:00_
+_Generated: 2026-10-18T17:35:25.431910+00:00_
 
 This report is produced automatically by the validation framework (`python/validation`). Each rule records its status, the number of records affected, a severity grade, and a recommended action.
 
