@@ -1,8 +1,10 @@
 # Canadian Household Credit & Interest-Rate Analysis
 
-This portfolio project turns public Canadian interest-rate and household-credit data into reproducible financial indicators, regime comparisons, and an auditable interest-cost scenario. It is designed to answer three analyst questions: **What is happening? What changed across rate regimes? What could a rate shock mean under explicit repricing assumptions?**
+This project turns public Canadian interest-rate and household-credit data into reproducible financial indicators, regime comparisons, and an auditable interest-cost scenario. It is designed to answer three analyst questions: **What is happening? What changed across rate regimes? What could a rate shock mean under explicit repricing assumptions?**
 
-It is a local research application, not a forecast, causal study, borrower-risk model, or deployed service.
+<img width="1886" height="952" alt="Screenshot (83)" src="https://github.com/user-attachments/assets/ea4df03f-0376-4968-bc5a-bd60967291b5" />
+
+**Live Dashboard:** https://canadian-credit-monitor.vercel.app/
 
 ## Verified findings in the current data snapshot
 
