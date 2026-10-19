@@ -1,21 +1,47 @@
 # Canadian Household Credit & Interest-Rate Analysis
 
-This project turns public Canadian interest-rate and household-credit data into reproducible financial indicators, regime comparisons, and an auditable interest-cost scenario. It is designed to answer three analyst questions: **What is happening? What changed across rate regimes? What could a rate shock mean under explicit repricing assumptions?**
+An end-to-end financial data analytics platform that transforms public Canadian interest-rate and household-credit data into reproducible research, interactive visualizations, and interest-cost sensitivity scenarios.
+
+**[Live Dashboard](https://canadian-credit-monitor.vercel.app/)** · **[Research Memo](reports/research_memo.md)** · **[Methodology](documentation/methodology.md)**
 
 <img width="1886" height="952" alt="Screenshot (83)" src="https://github.com/user-attachments/assets/ea4df03f-0376-4968-bc5a-bd60967291b5" />
 
-**Live Dashboard:** https://canadian-credit-monitor.vercel.app/
+## Project Highlights
 
-## Verified findings in the current data snapshot
+- **Financial data engineering:** Integrated 20 Bank of Canada and Statistics Canada series into a reproducible pipeline containing 12,049 observations, with timestamped source snapshots, validation checks, and data-quality monitoring.
+- **Interest-rate analysis:** Calculated lending-policy rate spreads and compared household credit growth across hiking, stable, and easing monetary-policy regimes, incorporating Newey–West HAC standard errors and block-bootstrap confidence intervals.
+- **Interest-cost scenario modeling:** Developed a Python and JavaScript calculation engine to quantify annualized borrowing-cost sensitivity under configurable rate shocks, pass-through assumptions, exposure shares, and repricing horizons.
+- **SQL analytics:** Built nine DuckDB analytical views for year-over-year changes, credit metrics, and other derived indicators.
+- **Testing and reproducibility:** Implemented automated unit tests and GitHub Actions checks, with an offline pipeline that reproduces results from selected historical source snapshots.
 
-The selected source snapshots were retrieved on 2026-10-13; the current processed run contains **20 series and 12,049 observations** through 2026-10-12. Research outputs and provenance are under `reports/` and `data/processed/`.
+## Selected Findings
 
-- The prime lending rate was **4.45%** and the policy rate **2.25%** on 2026-10-07, a **2.20 percentage-point spread** across 912 exact-date weekly observations.
-- The effective consumer-credit rate was **7.92%** on 2026-07-01. Its spread over the same-month average policy rate was **5.67 percentage points** (`N=121`).
-- Mean consumer-credit year-over-year growth was **5.81% hiking** (`N=52`, Aug 2017–May 2024), **3.23% stable** (`N=20`, Jul 2017–Jul 2024), and **3.53% easing** (`N=37`, Mar 2020–Jul 2026). The easing HAC and 12-month block-bootstrap 95% intervals both span zero; these descriptive comparisons do not establish a policy effect.
-- The observed chartered-bank consumer-credit balance was **CAD 704,582 million** on 2026-07-01. A +100 bp full-balance, immediate-repricing mechanical sensitivity is **CAD 7,045.82 million per year**. This is an arithmetic scenario, not a forecast.
+*Results from the selected data snapshot retrieved October 13, 2026; processed observations extend through October 12, 2026.*
 
-These numbers are reproducible from the selected raw snapshots and generated analysis files. Providers can revise observations, and later snapshots can change the results. The data freshness section below records a warning in the current validation run.
+| Analysis | Finding |
+|---|---|
+| Lending-policy spread | Prime rate of 4.45% versus a 2.25% policy rate: a 2.20 percentage-point spread on October 7, 2026 |
+| Consumer-credit growth | Mean year-over-year growth ranged from 3.23% in the stable regime to 5.81% in the hiking regime |
+| Interest-cost sensitivity | A hypothetical 100 bp increase applied immediately to the full CAD 704.582 billion consumer-credit balance implies CAD 7.046 billion in additional annualized interest costs |
+
+These are descriptive results and mechanical scenario calculations, not causal estimates or forecasts. Regime comparisons include uncertainty analysis, and the full-balance sensitivity assumes immediate, one-for-one repricing.
+
+## Tech Stack
+
+**Languages:** Python, SQL, JavaScript  
+**Data & Analytics:** DuckDB, pandas, NumPy, statistical analysis, financial scenario modeling  
+**Engineering:** REST APIs, data validation, automated testing, GitHub Actions, reproducible ETL pipelines  
+**Visualization:** Interactive web dashboard, generated charts, static-site deployment
+
+## Key Engineering Decisions
+
+- **Reproducible inputs:** Preserve timestamped source snapshots, retrieval metadata, row counts, and checksums.
+- **Data-quality controls:** Validate incoming observations before publishing derived analytical outputs.
+- **Offline-first research:** Separate live data ingestion from historical analysis so results can be reproduced without provider access.
+- **Consistent calculations:** Mirror the interest-cost scenario engine in Python and JavaScript.
+- **Explicit assumptions:** Distinguish observed data from user-defined scenario inputs and disclose the limitations of aggregate credit data.
+
+
 
 ## How the project works
 
